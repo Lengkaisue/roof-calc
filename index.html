@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>斜切計算器</title>
+<style>
+    body { background:#0d0d0d; color:#fff; font-family:Arial; padding:20px; }
+    .container { max-width:480px; margin:auto; background:#1a1a1a; padding:20px; border-radius:14px; }
+    h2 { text-align:center; color:#4da3ff; }
+    input, select { width:100%; padding:10px; margin-top:6px; background:#262626; color:white; border-radius:8px; border:1px solid #555; }
+    button { width:100%; padding:14px; margin-top:20px; background:#4da3ff; border:none; border-radius:10px; color:#fff; font-size:18px; cursor:pointer; }
+    button:hover { background:#1e8bff; }
+    .result-box { margin-top:20px; background:#121212; padding:16px; border-radius:10px; border:1px solid #333; }
+</style>
+</head>
+<body>
+<div class="container">
+    <h2>斜切計算器（深色版）</h2>
+
+    <label>分水（例如：2.5）</label>
+    <input type="number" id="fenShui" step="0.01">
+
+    <label>料寬</label>
+    <select id="liaoKuan">
+        <option value="10">10 cm</option>
+        <option value="12.5">12.5 cm</option>
+    </select>
+
+    <label>底長（cm）</label>
+    <input type="number" id="bottom" step="0.1">
+
+    <label>中心高（cm）</label>
+    <input type="number" id="centerH" step="0.1">
+
+    <button onclick="calc()">計算</button>
+
+    <div class="result-box" id="result"></div>
+</div>
+
+<script>
+function calc() {
+    let fen = parseFloat(document.getElementById("fenShui").value);
+    let liao = parseFloat(document.getElementById("liaoKuan").value);
+    let bottom = parseFloat(document.getElementById("bottom").value);
+    let h = parseFloat(document.getElementById("centerH").value);
+
+    if ([fen, liao, bottom, h].some(v => isNaN(v))) {
+        document.getElementById("result").innerHTML = "<p>請輸入所有欄位。</p>";
+        return;
+    }
+
+    let deg = Math.atan(fen / 10) * 180 / Math.PI;
+    let slopeLen = Math.sqrt(bottom * bottom + h * h);
+    let delta = liao * Math.tan((deg * Math.PI) / 180);
+    let half = delta / 2;
+
+    document.getElementById("result").innerHTML =
+        `<p>坡度角度：<b>${deg.toFixed(2)}°</b></p>
+         <p>屋頂斜長：<b>${slopeLen.toFixed(2)} cm</b></p>
+         <p>斜樑端面切量 Δ：<b>${delta.toFixed(2)} cm</b></p>
+         <p>中脊切量：左右各 <b>${half.toFixed(2)} cm</b>（合計 ${delta.toFixed(2)} cm）</p>`;
+}
+</script>
+
+</body>
+</html>
