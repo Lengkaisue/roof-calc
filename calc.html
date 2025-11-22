@@ -2,126 +2,230 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>斜切計算器</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>坪數＋浪板＋C型鋼 與 斜切 計算器（深色版）</title>
 <style>
-    body {
-        background-color: #0d0d0d;
-        color: #ffffff;
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 20px;
-    }
-    .container {
-        max-width: 480px;
-        margin: auto;
-        background: #1a1a1a;
-        padding: 20px;
-        border-radius: 14px;
-        border: 1px solid #333;
-        box-shadow: 0 0 12px rgba(50, 50, 50, 0.4);
-    }
-    h2 {
-        text-align: center;
-        margin-bottom: 20px;
-        color: #4da3ff;
-    }
-    label {
-        display: block;
-        margin-top: 12px;
-        font-size: 14px;
-    }
-    input, select {
-        width: 100%;
-        padding: 10px;
-        margin-top: 6px;
-        border-radius: 8px;
-        border: 1px solid #555;
-        background: #262626;
-        color: #fff;
-        font-size: 16px;
-    }
-    button {
-        width: 100%;
-        padding: 14px;
-        margin-top: 20px;
-        background: #4da3ff;
-        color: #fff;
-        border: none;
-        border-radius: 10px;
-        font-size: 18px;
-        cursor: pointer;
-    }
-    button:hover {
-        background: #1e8bff;
-    }
-    .result-box {
-        margin-top: 22px;
-        background: #121212;
-        padding: 16px;
-        border-radius: 10px;
-        border: 1px solid #333;
-    }
-    .result-box p {
-        margin: 8px 0;
-        font-size: 15px;
-    }
+  body {
+    background: #0d0d0d;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    margin: 0;
+  }
+
+  h1, h2 {
+    color: #4da3ff;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .container {
+    max-width: 600px;
+    margin: 20px auto;
+    background: #1a1a1a;
+    padding: 25px;
+    border-radius: 14px;
+    box-shadow: 0 0 15px #222;
+  }
+
+  input, select {
+    width: 160px;
+    padding: 10px;
+    margin: 5px;
+    font-size: 16px;
+    text-align: center;
+    background: #262626;
+    color: #fff;
+    border-radius: 8px;
+    border: 1px solid #555;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+
+  input:focus, select:focus {
+    border-color: #4da3ff;
+  }
+
+  label {
+    font-size: 15px;
+    margin-right: 5px;
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  .result, .result-box {
+    margin-top: 15px;
+    background: #121212;
+    color: #0055cc;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #333;
+    font-size: 18px;
+    font-weight: bold;
+    min-height: 40px;
+  }
+
+  button {
+    width: 100%;
+    padding: 14px;
+    margin-top: 20px;
+    background: #4da3ff;
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+
+  button:hover {
+    background: #1e8bff;
+  }
+
 </style>
 </head>
-
 <body>
+
+<h1>坪數＋浪板＋C型鋼 與 斜切 計算器（深色版）</h1>
+
 <div class="container">
-    <h2>斜切計算器（深色版）</h2>
+  <h2>坪數計算</h2>
+  <input type="number" id="len" placeholder="長 (cm)" oninput="calcPing()">
+  <input type="number" id="wid" placeholder="寬 (cm)" oninput="calcPing()">
+  <div id="pingResult" class="result">請輸入長寬</div>
+</div>
 
-    <label>分水（例如：2.5）</label>
-    <input type="number" id="fenShui" step="0.01">
+<div class="container">
+  <h2>浪板片數計算（750型）</h2>
+  <select id="slopeType" onchange="calcWave()">
+    <option value="1">單斜</option>
+    <option value="2">雙斜（自動 ×2）</option>
+  </select>
+  <br>
+  <input type="number" id="roofLen" placeholder="單邊屋頂長度 (cm)" oninput="calcWave()">
+  <div id="waveResult" class="result">請輸入資料</div>
+</div>
 
-    <label>料寬</label>
-    <select id="liaoKuan">
-        <option value="10">10 cm</option>
-        <option value="12.5">12.5 cm</option>
-    </select>
+<div class="container">
+  <h2>C 型鋼間距計算（60～80 cm）</h2>
+  <input type="number" id="cLen" placeholder="斜樑總長 (cm)" oninput="calcC()">
+  <br>
+  <label>首隻間距（固定）</label>
+  <input type="number" value="15" id="firstGap" readonly>
+  <div id="cResult" class="result">請輸入資料</div>
+</div>
 
-    <label>底長（cm）</label>
-    <input type="number" id="bottom" step="0.1">
+<div class="container">
+  <h2>斜切計算器</h2>
+  <label for="fenShui">分水（例如：2.5）</label>
+  <input type="number" id="fenShui" step="0.01" placeholder="請輸入分水">
 
-    <label>中心高（cm）</label>
-    <input type="number" id="centerH" step="0.1">
+  <label for="liaoKuan">料寬</label>
+  <select id="liaoKuan">
+    <option value="10">10 cm</option>
+    <option value="12.5">12.5 cm</option>
+  </select>
 
-    <button onclick="calc()">計算</button>
+  <label for="bottom">底長（cm）</label>
+  <input type="number" id="bottom" step="0.1" placeholder="請輸入底長">
 
-    <div class="result-box" id="result"></div>
+  <label for="centerH">中心高（cm）</label>
+  <input type="number" id="centerH" step="0.1" placeholder="請輸入中心高">
+
+  <button onclick="calc()">計算</button>
+
+  <div id="result" class="result-box"></div>
 </div>
 
 <script>
-function calc() {
-    let fen = parseFloat(document.getElementById("fenShui").value);
-    let liao = parseFloat(document.getElementById("liaoKuan").value);
-    let bottom = parseFloat(document.getElementById("bottom").value);
-    let h = parseFloat(document.getElementById("centerH").value);
+// 坪數計算
+function calcPing() {
+  let L = parseFloat(document.getElementById("len").value);
+  let W = parseFloat(document.getElementById("wid").value);
 
-    if (isNaN(fen) || isNaN(liao) || isNaN(bottom) || isNaN(h)) {
-        document.getElementById("result").innerHTML = "<p>請輸入所有欄位。</p>";
-        return;
+  if (isNaN(L) || isNaN(W)) {
+    document.getElementById("pingResult").innerHTML = "請輸入長寬";
+    return;
+  }
+
+  let cm2 = L * W;
+  let m2 = cm2 / 10000;
+  let ping = cm2 / 33057.85;
+
+  document.getElementById("pingResult").innerHTML =
+    約 ${ping.toFixed(2)} 坪（${m2.toFixed(2)} m²）;
+}
+
+// 浪板片數計算
+function calcWave() {
+  let type = parseInt(document.getElementById("slopeType").value);
+  let L = parseFloat(document.getElementById("roofLen").value);
+
+  if (isNaN(L)) {
+    document.getElementById("waveResult").innerHTML = "請輸入資料";
+    return;
+  }
+
+  let pcs = Math.ceil(L / 75);
+
+  if (type === 2) pcs = pcs * 2;
+
+  document.getElementById("waveResult").innerHTML =
+    需要浪板：${pcs} 片;
+}
+
+// C 型鋼計算
+function calcC() {
+  let total = parseFloat(document.getElementById("cLen").value);
+  let firstGap = 15;
+
+  if (isNaN(total)) {
+    document.getElementById("cResult").innerHTML = "請輸入資料";
+    return;
+  }
+
+  let usable = total - firstGap;
+  let txt = "";
+
+  txt += 總長：${total} cm（已扣首隻 15 cm）<br><br>;
+
+  for (let n = 7; n <= 12; n++) {
+    let space = usable / n;
+
+    if (space <= 80 && space >= 60) {
+      txt += ${usable} / ${n} 隻 = ${space.toFixed(1)} cm　（共計 ${n + 1} 隻）<br>;
     }
+  }
 
-    // 角度（分水 → 坡度角）
-    let deg = Math.atan(fen / 10) * 180 / Math.PI;
+  if (txt.indexOf("隻") === -1) {
+    txt = "沒有符合 60～80 cm 的分佈";
+  }
 
-    // 斜長
-    let slopeLen = Math.sqrt(bottom * bottom + h * h);
+  document.getElementById("cResult").innerHTML = txt;
+}
 
-    // 端部切量 Δ
-    let delta = liao * Math.tan((deg * Math.PI) / 180);
+// 斜切計算器
+function calc() {
+  let fen = parseFloat(document.getElementById("fenShui").value);
+  let liao = parseFloat(document.getElementById("liaoKuan").value);
+  let bottom = parseFloat(document.getElementById("bottom").value);
+  let h = parseFloat(document.getElementById("centerH").value);
 
-    // 中脊左右各切多少
-    let half = delta / 2;
+  if ([fen, liao, bottom, h].some(v => isNaN(v))) {
+    document.getElementById("result").innerHTML = "<p>請輸入所有欄位。</p>";
+    return;
+  }
 
-    document.getElementById("result").innerHTML =
-        `<p>坡度角度：<b>${deg.toFixed(2)}°</b></p>
-         <p>屋頂斜長：<b>${slopeLen.toFixed(2)} cm</b></p>
-         <p>斜樑端面切量 Δ：<b>${delta.toFixed(2)} cm</b></p>
-         <p>中脊切量：左右各 <b>${half.toFixed(2)} cm</b>（合計 ${delta.toFixed(2)} cm）</p>`;
+  let deg = Math.atan(fen / 10) * 180 / Math.PI;
+  let slopeLen = Math.sqrt(bottom * bottom + h * h);
+  let delta = liao * Math.tan((deg * Math.PI) / 180);
+  let half = delta / 2;
+
+  document.getElementById("result").innerHTML =
+    <p>坡度角度：<b>${deg.toFixed(2)}°</b></p>
+     <p>屋頂斜長：<b>${slopeLen.toFixed(2)} cm</b></p>
+     <p>斜樑端面切量 Δ：<b>${delta.toFixed(2)} cm</b></p>
+     <p>中脊切量：左右各 <b>${half.toFixed(2)} cm</b>（合計 ${delta.toFixed(2)} cm）</p>;
 }
 </script>
 
