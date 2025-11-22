@@ -146,8 +146,8 @@
     <input type="number" id="bottom" step="0.1" placeholder="請輸入底長">
   </div>
   <div class="row">
-    <label>中心高 (cm)</label>
-    <input type="number" id="centerH" step="0.1" placeholder="請輸入中心高">
+    <label>中心高 (cm)（自動計算）</label>
+    <input type="number" id="centerH" step="0.1" placeholder="自動計算" readonly>
   </div>
   <button onclick="calc()">計算</button>
   <div id="result" class="result-box">請輸入所有欄位，點選計算。</div>
@@ -198,24 +198,29 @@ function calcC() {
   document.getElementById('cResult').innerText = txt;
 }
 
-// 斜切計算器 - 正確對應鐵皮常用分水標準
 function calc() {
   const fenShuiVal = parseFloat(document.getElementById('fenShui').value);
   const liaoKuanVal = parseFloat(document.getElementById('liaoKuan').value);
   const bottomVal = parseFloat(document.getElementById('bottom').value);
-  const centerHVal = parseFloat(document.getElementById('centerH').value);
+  const centerHInput = document.getElementById('centerH');
   const result = document.getElementById('result');
 
-  if ([fenShuiVal, liaoKuanVal, bottomVal, centerHVal].some(v => isNaN(v))) {
-    result.innerHTML = "請輸入所有欄位";
+  if (isNaN(fenShuiVal) || isNaN(liaoKuanVal) || isNaN(bottomVal)) {
+    result.innerHTML = "請輸入分水、料寬和底長";
     return;
   }
 
-  // 分水轉角度，分水 = tan(θ) x 10 => θ = arctan(分水/10)
+  // 分水轉角度θ (弧度)
   const angleRad = Math.atan(fenShuiVal / 10);
   const angleDeg = angleRad * 180 / Math.PI;
 
-  // 勾股定理計算斜長
+  // 由分水與底長推計高度 (自動計算高度)
+  const centerHVal = bottomVal * Math.tan(angleRad);
+
+  // 設定自動計算結果回高度輸入欄，且readonly
+  centerHInput.value = centerHVal.toFixed(2);
+
+  // 計算屋頂斜長 (勾股定理)
   const slopeLen = Math.sqrt(bottomVal * bottomVal + centerHVal * centerHVal);
 
   // 計算端面切量（垂直落差 Δh）和斜切長度（沿斜面）
@@ -225,6 +230,7 @@ function calc() {
 
   result.innerHTML =
     `<p>坡度角度：<b>${angleDeg.toFixed(2)}°</b></p>
+     <p>計算高度（中心高）：<b>${centerHVal.toFixed(2)} cm</b></p>
      <p>屋頂斜長：<b>${slopeLen.toFixed(2)} cm</b></p>
      <p>端面切量 Δ（垂直落差）：<b>${delta.toFixed(2)} cm</b></p>
      <p>料寬斜切長（沿斜面）：<b>${cutLen.toFixed(2)} cm</b></p>
