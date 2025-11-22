@@ -29,7 +29,6 @@
     box-shadow: 0 0 15px #222;
   }
 
-  /* 🟦 通用欄位排版 */
   .row {
     display: flex;
     align-items: center;
@@ -91,27 +90,21 @@
 
 <h1>工程計算器（深色版）</h1>
 
-<!-- 🟦 坪數 -->
 <div class="container">
   <h2>坪數計算</h2>
-
   <div class="row">
     <label>長 (cm)</label>
     <input type="number" id="len" oninput="calcPing()">
   </div>
-
   <div class="row">
     <label>寬 (cm)</label>
     <input type="number" id="wid" oninput="calcPing()">
   </div>
-
   <div id="pingResult" class="result">請輸入長寬</div>
 </div>
 
-<!-- 🟦 浪板 -->
 <div class="container">
   <h2>浪板片數計算（750型）</h2>
-
   <div class="row">
     <label>屋頂類型</label>
     <select id="slopeType" onchange="calcWave()">
@@ -119,41 +112,32 @@
       <option value="2">雙斜（自動 ×2）</option>
     </select>
   </div>
-
   <div class="row">
     <label>單邊屋頂長度 (cm)</label>
     <input type="number" id="roofLen" oninput="calcWave()">
   </div>
-
   <div id="waveResult" class="result">請輸入資料</div>
 </div>
 
-<!-- 🟦 C型鋼 -->
 <div class="container">
   <h2>C 型鋼間距計算（60～80 cm）</h2>
-
   <div class="row">
     <label>斜樑總長 (cm)</label>
     <input type="number" id="cLen" oninput="calcC()">
   </div>
-
   <div class="row">
     <label>首隻間距</label>
     <input type="number" id="firstGap" value="15" readonly>
   </div>
-
   <div id="cResult" class="result">請輸入資料</div>
 </div>
 
-<!-- 🟦 斜切 -->
 <div class="container">
   <h2>斜切計算器</h2>
-
   <div class="row">
     <label>分水（例如2.5）</label>
     <input type="number" id="fenShui" step="0.01">
   </div>
-
   <div class="row">
     <label>料寬</label>
     <select id="liaoKuan">
@@ -161,115 +145,95 @@
       <option value="12.5">12.5 cm</option>
     </select>
   </div>
-
   <div class="row">
     <label>底長 (cm)</label>
     <input type="number" id="bottom" step="0.1">
   </div>
-
   <div class="row">
     <label>中心高 (cm)</label>
     <input type="number" id="centerH" step="0.1">
   </div>
-
   <button onclick="calc()">計算</button>
-
   <div id="result" class="result-box"></div>
 </div>
 
-<!-- 🟦 三角形斜邊 -->
 <div class="container">
   <h2>三角形斜邊計算器（畢氏）</h2>
-
   <div class="row">
     <label>邊長A (cm)</label>
     <input type="number" id="triA">
   </div>
-
   <div class="row">
     <label>邊長B (cm)</label>
     <input type="number" id="triB">
   </div>
-
   <button onclick="calcTri()">計算斜邊</button>
-
   <div id="triResult" class="result-box"></div>
 </div>
 
 <script>
-/* 坪數 */
 function calcPing() {
   let L = parseFloat(len.value);
   let W = parseFloat(wid.value);
-
   if (isNaN(L) || isNaN(W)) {
     pingResult.innerHTML = "請輸入長寬";
     return;
   }
-
   let cm2 = L * W;
   let m2 = cm2 / 10000;
   let ping = cm2 / 33057.85;
-
   pingResult.innerHTML = `約 ${ping.toFixed(2)} 坪（${m2.toFixed(2)} m²）`;
 }
 
-/* 浪板 */
 function calcWave() {
   let type = Number(slopeType.value);
   let L = parseFloat(roofLen.value);
-
   if (isNaN(L)) {
     waveResult.innerHTML = "請輸入資料";
     return;
   }
-
   let pcs = Math.ceil(L / 75);
   if (type === 2) pcs *= 2;
-
   waveResult.innerHTML = `需要浪板：${pcs} 片`;
 }
 
-/* C 型鋼 */
 function calcC() {
   let total = parseFloat(cLen.value);
   let firstGap = 15;
-
   if (isNaN(total)) {
     cResult.innerHTML = "請輸入資料";
     return;
   }
-
   let usable = total - firstGap;
   let txt = `總長：${total} cm（已扣首隻15 cm）<br><br>`;
-
   for (let n = 7; n <= 12; n++) {
     let space = usable / n;
     if (space >= 60 && space <= 80) {
       txt += `${usable} / ${n} 隻 = ${space.toFixed(1)} cm　（共 ${n + 1} 隻）<br>`;
     }
   }
-
   if (!txt.includes("隻")) txt = "沒有符合 60～80 cm 的分佈";
-
   cResult.innerHTML = txt;
 }
 
-/* 斜切 */
+/* 已修正公式版 */
 function calc() {
   let fen = parseFloat(fenShui.value);
   let liao = parseFloat(liaoKuan.value);
-  let bottom = parseFloat(bottom.value);
+  let bottomVal = parseFloat(bottom.value);
   let h = parseFloat(centerH.value);
 
-  if ([fen, liao, bottom, h].some(v => isNaN(v))) {
+  if ([fen, liao, bottomVal, h].some(v => isNaN(v))) {
     result.innerHTML = "請輸入所有欄位";
     return;
   }
 
-  let deg = Math.atan(fen / 10) * 180 / Math.PI;
-  let slopeLen = Math.sqrt(bottom**2 + h**2);
-  let delta = liao * Math.tan(deg * Math.PI / 180);
+  let slope = fen / 100;
+  let deg = Math.atan(slope) * 180 / Math.PI;
+
+  let slopeLen = Math.sqrt(bottomVal * bottomVal + h * h);
+
+  let delta = liao * slope;
   let half = delta / 2;
 
   result.innerHTML =
@@ -279,7 +243,6 @@ function calc() {
      中脊左右各切：<b>${half.toFixed(2)} cm</b>`;
 }
 
-/* 三角形斜邊 */
 function calcTri() {
   let A = parseFloat(triA.value);
   let B = parseFloat(triB.value);
@@ -290,7 +253,6 @@ function calcTri() {
   }
 
   let C = Math.sqrt(A * A + B * B);
-
   triResult.innerHTML = `斜邊長度：<b>${C.toFixed(2)} cm</b>`;
 }
 </script>
