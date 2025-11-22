@@ -235,8 +235,32 @@ function calc() {
      <p>端面切量 Δ（垂直落差）：<b>${delta.toFixed(2)} cm</b></p>
      <p>料寬斜切長（沿斜面）：<b>${cutLen.toFixed(2)} cm</b></p>
      <p>中脊左右各切：<b>${halfCut.toFixed(2)} cm</b></p>`;
+
+<div class="container">
+  <h2>三角形斜邊計算器（畢氏）</h2>
+  <div class="row">
+    <label>邊長A (cm)</label>
+    <input type="number" id="triA">
+  </div>
+  <div class="row">
+    <label>邊長B (cm)</label>
+    <input type="number" id="triB">
+  </div>
+  <button onclick="calcTri()">計算斜邊</button>
+  <div id="triResult" class="result-box"></div>
+</div>
+
+<script>
+function calcTri() {
+  let A = parseFloat(document.getElementById('triA').value);
+  let B = parseFloat(document.getElementById('triB').value);
+  let triResult = document.getElementById('triResult');
+
+  if (isNaN(A) || isNaN(B)) {
+    triResult.innerHTML = "請輸入兩邊長度";
+    return;
+  }
+  let C = Math.sqrt(A * A + B * B);
+  triResult.innerHTML = `斜邊長度：<b>${C.toFixed(2)} cm</b>`;
 }
 </script>
-
-</body>
-</html>
