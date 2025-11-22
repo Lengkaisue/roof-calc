@@ -86,6 +86,7 @@
 
 <h1>工程計算器（深色版）</h1>
 
+<!-- 坪數計算 -->
 <div class="container">
   <h2>坪數計算</h2>
   <div class="row">
@@ -99,6 +100,7 @@
   <div id="pingResult" class="result">請輸入長寬</div>
 </div>
 
+<!-- 浪板片數計算 -->
 <div class="container">
   <h2>浪板片數計算（750型）</h2>
   <div class="row">
@@ -115,6 +117,7 @@
   <div id="waveResult" class="result">請輸入資料</div>
 </div>
 
+<!-- C 型鋼間距計算 -->
 <div class="container">
   <h2>C 型鋼間距計算（60～80 cm）</h2>
   <div class="row">
@@ -128,6 +131,7 @@
   <div id="cResult" class="result">請輸入資料</div>
 </div>
 
+<!-- 斜切計算器 -->
 <div class="container">
   <h2>斜切計算器</h2>
   <div class="row">
@@ -151,6 +155,21 @@
   </div>
   <button onclick="calc()">計算</button>
   <div id="result" class="result-box">請輸入所有欄位，點選計算。</div>
+</div>
+
+<!-- 三角形斜邊計算器（畢氏定理） -->
+<div class="container">
+  <h2>三角形斜邊計算器（畢氏）</h2>
+  <div class="row">
+    <label>邊長A (cm)</label>
+    <input type="number" id="triA">
+  </div>
+  <div class="row">
+    <label>邊長B (cm)</label>
+    <input type="number" id="triB">
+  </div>
+  <button onclick="calcTri()">計算斜邊</button>
+  <div id="triResult" class="result-box"></div>
 </div>
 
 <script>
@@ -207,6 +226,7 @@ function calc() {
 
   if (isNaN(fenShuiVal) || isNaN(liaoKuanVal) || isNaN(bottomVal)) {
     result.innerHTML = "請輸入分水、料寬和底長";
+    centerHInput.value = "";
     return;
   }
 
@@ -216,8 +236,6 @@ function calc() {
 
   // 由分水與底長推計高度 (自動計算高度)
   const centerHVal = bottomVal * Math.tan(angleRad);
-
-  // 設定自動計算結果回高度輸入欄，且readonly
   centerHInput.value = centerHVal.toFixed(2);
 
   // 計算屋頂斜長 (勾股定理)
@@ -235,22 +253,8 @@ function calc() {
      <p>端面切量 Δ（垂直落差）：<b>${delta.toFixed(2)} cm</b></p>
      <p>料寬斜切長（沿斜面）：<b>${cutLen.toFixed(2)} cm</b></p>
      <p>中脊左右各切：<b>${halfCut.toFixed(2)} cm</b></p>`;
+}
 
-<div class="container">
-  <h2>三角形斜邊計算器（畢氏）</h2>
-  <div class="row">
-    <label>邊長A (cm)</label>
-    <input type="number" id="triA">
-  </div>
-  <div class="row">
-    <label>邊長B (cm)</label>
-    <input type="number" id="triB">
-  </div>
-  <button onclick="calcTri()">計算斜邊</button>
-  <div id="triResult" class="result-box"></div>
-</div>
-
-<script>
 function calcTri() {
   let A = parseFloat(document.getElementById('triA').value);
   let B = parseFloat(document.getElementById('triB').value);
@@ -264,3 +268,6 @@ function calcTri() {
   triResult.innerHTML = `斜邊長度：<b>${C.toFixed(2)} cm</b>`;
 }
 </script>
+
+</body>
+</html>
