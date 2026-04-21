@@ -47,11 +47,6 @@
     border-radius: 8px;
     text-align: center;
     outline: none;
-    transition: border-color 0.3s;
-  }
-  .row input:focus,
-  .row select:focus {
-    border-color: #4da3ff;
   }
   button {
     width: 100%;
@@ -63,10 +58,6 @@
     color: #fff;
     font-size: 18px;
     cursor: pointer;
-    transition: background 0.3s;
-  }
-  button:hover {
-    background: #1e8bff;
   }
   .result, .result-box {
     margin-top: 15px;
@@ -86,6 +77,7 @@
 
 <h1>工程計算器（深色版）</h1>
 
+<!-- 坪數 -->
 <div class="container">
   <h2>坪數計算</h2>
   <div class="row">
@@ -99,6 +91,7 @@
   <div id="pingResult" class="result">請輸入長寬</div>
 </div>
 
+<!-- 浪板 -->
 <div class="container">
   <h2>浪板片數計算（750型）</h2>
   <div class="row">
@@ -115,11 +108,12 @@
   <div id="waveResult" class="result">請輸入資料</div>
 </div>
 
+<!-- 斜切 -->
 <div class="container">
   <h2>斜切計算器</h2>
   <div class="row">
-    <label>分水（例如 2）</label>
-    <input type="number" id="fenShui" step="0.01" placeholder="請輸入分水">
+    <label>分水</label>
+    <input type="number" id="fenShui">
   </div>
   <div class="row">
     <label>料寬</label>
@@ -130,29 +124,31 @@
   </div>
   <div class="row">
     <label>底長 (cm)</label>
-    <input type="number" id="bottom" step="0.1" placeholder="請輸入底長">
+    <input type="number" id="bottom">
   </div>
   <div class="row">
-    <label>中心高 (cm)（自動計算）</label>
-    <input type="number" id="centerH" step="0.1" placeholder="自動計算" readonly>
+    <label>中心高</label>
+    <input type="number" id="centerH" readonly>
   </div>
   <button onclick="calc()">計算</button>
-  <div id="result" class="result-box">請輸入所有欄位，點選計算。</div>
+  <div id="result" class="result-box"></div>
 </div>
 
+<!-- C型鋼 -->
 <div class="container">
-  <h2>C 型鋼間距計算（60～80 cm）</h2>
+  <h2>C 型鋼間距計算（含封邊）</h2>
   <div class="row">
     <label>斜樑總長 (cm)</label>
     <input type="number" id="cLen" oninput="calcC()">
   </div>
   <div class="row">
     <label>首隻間距</label>
-    <input type="number" id="firstGap" value="15" readonly>
+    <input type="number" value="15" readonly>
   </div>
   <div id="cResult" class="result">請輸入資料</div>
 </div>
 
+<!-- 三角形 -->
 <div class="container">
   <h2>三角形斜邊計算器（畢氏定理）</h2>
   <div class="row">
@@ -168,99 +164,121 @@
 </div>
 
 <script>
+
+// 坪數
 function calcPing() {
   let L = parseFloat(document.getElementById('len').value);
   let W = parseFloat(document.getElementById('wid').value);
   if (isNaN(L) || isNaN(W)) {
-    document.getElementById('pingResult').innerHTML = "請輸入長寬";
+    pingResult.innerHTML = "請輸入長寬";
     return;
   }
   let cm2 = L * W;
-  let m2 = cm2 / 10000;
-  let ping = cm2 / 33057.85;
-  document.getElementById('pingResult').innerHTML = `約 ${ping.toFixed(2)} 坪（${m2.toFixed(2)} m²）`;
+  pingResult.innerHTML = `約 ${(cm2/33057.85).toFixed(2)} 坪（${(cm2/10000).toFixed(2)} m²）`;
 }
 
+// 浪板
 function calcWave() {
   let type = Number(document.getElementById('slopeType').value);
   let L = parseFloat(document.getElementById('roofLen').value);
   if (isNaN(L)) {
-    document.getElementById('waveResult').innerHTML = "請輸入資料";
+    waveResult.innerHTML = "請輸入資料";
     return;
   }
   let pcs = Math.ceil(L / 75);
   if (type === 2) pcs *= 2;
-  document.getElementById('waveResult').innerHTML = `需要浪板：${pcs} 片`;
+  waveResult.innerHTML = `需要浪板：${pcs} 片`;
 }
 
+// 斜切
 function calc() {
-  const fenShuiVal = parseFloat(document.getElementById('fenShui').value);
-  const liaoKuanVal = parseFloat(document.getElementById('liaoKuan').value);
-  const bottomVal = parseFloat(document.getElementById('bottom').value);
-  const centerHInput = document.getElementById('centerH');
-  const result = document.getElementById('result');
+  const f = parseFloat(fenShui.value);
+  const w = parseFloat(liaoKuan.value);
+  const b = parseFloat(bottom.value);
 
-  if (isNaN(fenShuiVal) || isNaN(liaoKuanVal) || isNaN(bottomVal)) {
-    result.innerHTML = "請輸入分水、料寬和底長";
-    centerHInput.value = "";
-    return;
-  }
+  if (isNaN(f) || isNaN(w) || isNaN(b)) return;
 
-  const angleRad = Math.atan(fenShuiVal / 10);
-  const angleDeg = angleRad * 180 / Math.PI;
-  const centerHVal = bottomVal * Math.tan(angleRad);
-  centerHInput.value = centerHVal.toFixed(2);
-  const slopeLen = Math.sqrt(bottomVal * bottomVal + centerHVal * centerHVal);
-  const delta = liaoKuanVal * Math.tan(angleRad);
-  const cutLen = liaoKuanVal / Math.cos(angleRad);
-  const halfCut = delta / 2;
+  const rad = Math.atan(f / 10);
+  const h = b * Math.tan(rad);
+  centerH.value = h.toFixed(2);
+
+  const slope = Math.sqrt(b*b + h*h);
+  const delta = w * Math.tan(rad);
+  const cut = w / Math.cos(rad);
 
   result.innerHTML =
-    `<p>坡度角度：<b>${angleDeg.toFixed(2)}°</b></p>
-     <p>計算高度（中心高）：<b>${centerHVal.toFixed(2)} cm</b></p>
-     <p>屋頂斜長：<b>${slopeLen.toFixed(2)} cm</b></p>
-     <p>端面切量 Δ（垂直落差）：<b>${delta.toFixed(2)} cm</b></p>
-     <p>料寬斜切長（沿斜面）：<b>${cutLen.toFixed(2)} cm</b></p>
-     <p>中脊左右各切：<b>${halfCut.toFixed(2)} cm</b></p>`;
+    `角度：${(rad*180/Math.PI).toFixed(2)}°<br>
+     高度：${h.toFixed(2)} cm<br>
+     斜長：${slope.toFixed(2)} cm<br>
+     切量：${delta.toFixed(2)} cm<br>
+     斜切長：${cut.toFixed(2)} cm`;
 }
 
+// ⭐ C型鋼（含封邊+2）
 function calcC() {
-  let total = parseFloat(document.getElementById('cLen').value);
-  let firstGap = 15;
-  let resultDiv = document.getElementById('cResult');
-  if (isNaN(total) || total <= firstGap) {
-    resultDiv.innerHTML = "請輸入大於首隻間距的有效斜樑總長";
+  let total = parseFloat(cLen.value);
+  let first = 15;
+
+  if (isNaN(total) || total <= first) {
+    cResult.innerHTML = "請輸入有效長度";
     return;
   }
-  let usable = total - firstGap;
-  let txt = `總長：${total} cm（已扣首隻 ${firstGap} cm）<br><br>`;
+
+  let usable = total - first;
+
+  // 短距離
+  if (total < 200) {
+    let best = usable;
+    let bestN = 2;
+
+    for (let n = 2; n < 50; n++) {
+      let space = usable / (n - 1);
+      if (space < best) {
+        best = space;
+        bestN = n;
+      }
+    }
+
+    let finalN = bestN + 2;
+
+    cResult.innerHTML =
+      `短距離模式<br>
+       間距：約 ${best.toFixed(1)} cm<br>
+       原本：${bestN} 隻 → 含封邊：${finalN} 隻`;
+    return;
+  }
+
+  // 正常
+  let txt = "";
   let found = false;
-  for (let n = 2; n <= 1000; n++) {
-    let segments = n - 1;
-    let space = usable / segments;
+
+  for (let n = 2; n < 50; n++) {
+    let space = usable / (n - 1);
+
     if (space >= 60 && space <= 80) {
       found = true;
-      txt += `${usable} / ${segments} 隻 = ${space.toFixed(1)} cm　（共 ${n} 隻）<br>`;
+      let finalN = n + 2;
+      txt += `${space.toFixed(1)} cm（${n}隻 → ${finalN}隻）<br>`;
     }
-    if (space < 60) break;
   }
-  if (!found) {
-    txt = "沒有符合 60～80 cm 的分佈";
-  }
-  resultDiv.innerHTML = txt;
+
+  cResult.innerHTML = found ? txt : "沒有符合 60～80";
 }
 
+// 三角形
 function calcTri() {
-  let A = parseFloat(document.getElementById('triA').value);
-  let B = parseFloat(document.getElementById('triB').value);
-  let triResult = document.getElementById('triResult');
+  let A = parseFloat(triA.value);
+  let B = parseFloat(triB.value);
+
   if (isNaN(A) || isNaN(B) || A <= 0 || B <= 0) {
-    triResult.innerHTML = "請輸入有效且大於0的兩邊長度";
+    triResult.innerHTML = "請輸入有效數值";
     return;
   }
-  let C = Math.sqrt(A * A + B * B);
-  triResult.innerHTML = `斜邊長度：<b>${C.toFixed(2)} cm</b>`;
+
+  let C = Math.sqrt(A*A + B*B);
+  triResult.innerHTML = `斜邊長度：${C.toFixed(2)} cm`;
 }
+
 </script>
 
 </body>
