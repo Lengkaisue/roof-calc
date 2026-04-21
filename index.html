@@ -209,15 +209,40 @@ triResult.innerHTML=Math.sqrt(A*A+B*B).toFixed(2);
 
 // 樓梯
 function calcStair(){
-let h=stairH.value,l=stairL.value,n=stairN.value;
-if(!h||!l||!n)return;
-let stepH=h/n;
-let stepW=l/n;
-let slope=Math.sqrt(h*h+l*l);
-stairResult.innerHTML=
-`斜邊:${slope.toFixed(1)}<br>
-每階高:${stepH.toFixed(1)}<br>
-每階寬:${stepW.toFixed(1)}`;
+let H=parseFloat(stairH.value);
+let L=parseFloat(stairL.value);
+let result=stairResult;
+
+if(!H||!L){
+result.innerHTML="請輸入高度與水平長";
+return;
+}
+
+// ⭐ 自動步數（17cm基準）
+let N=Math.round(H/17);
+if(N<1)N=1;
+
+// 每階
+let stepH=H/N;
+let stepW=L/N;
+
+// 安全判斷
+let status="";
+if(stepH>=16 && stepH<=18){
+status="🟢 標準安全";
+}else if(stepH>18 && stepH<=20){
+status="🟡 偏高";
+}else if(stepH>20){
+status="🔴 危險樓梯";
+}else{
+status="🟢 偏低（可接受但較矮）";
+}
+
+result.innerHTML=
+`建議步數：${N} 踏<br>
+每階高度：${stepH.toFixed(1)} cm<br>
+每階踏深：${stepW.toFixed(1)} cm<br><br>
+安全判斷：${status}`;
 }
 
 </script>
