@@ -159,56 +159,88 @@ triResult.innerHTML=Math.sqrt(A*A+B*B).toFixed(2);
 
 // ⭐樓梯（完整版）
 function calcStair(){
+
 let H=parseFloat(stairH.value);
 let L=parseFloat(stairL.value);
 let W=parseFloat(matW.value);
 
 if(!H||!L||!W){
-stairResult.innerHTML="請輸入完整資料";
+stairResult.innerHTML="請輸入高度、水平長、料寬";
 return;
 }
 
-// 步數
-let N=Math.round(H/17);
+// ⭐ 步數（抓16.5）
+let N=Math.round(H/16.5);
 if(N<1)N=1;
 
 // 每階
 let stepH=H/N;
 let stepW=L/N;
 
-// 斜長
+// ⭐ 斜長
 let slope=Math.sqrt(H*H + L*L);
 
-// 角度
-let angle=Math.atan(H/L);
+// ⭐ 每步斜長
+let stepSlope=slope/N;
 
-// 上切
-let cutTop=W * Math.tan(angle);
+// ⭐ 坡度
+let ratio=H/L;
+let angle=Math.atan(ratio)*180/Math.PI;
 
-// 下切
-let cutBottom=W * (1/Math.tan(angle));
+// ⭐ 切角
+let rad=Math.atan(H/L);
+let cutTop=W*Math.tan(rad);
+let cutBottom=W*(1/Math.tan(rad));
 
-// 安全判斷
-let status="";
-if(stepH>=16 && stepH<=18){
-status="🟢 標準安全";
-}else if(stepH<=20){
-status="🟡 偏高";
+// ⭐ 坡度判斷
+let slopeStatus="";
+if(angle<=35){
+slopeStatus="🟢 舒適坡度";
+}else if(angle<=40){
+slopeStatus="🟡 偏陡";
 }else{
-status="🔴 危險";
+slopeStatus="🔴 過陡";
 }
 
+// ⭐ 建議（核心）
+let suggest="";
+
+// 如果太陡 → 算需要長度
+if(angle>35){
+let needL=H/Math.tan(35*Math.PI/180);
+suggest+=`👉 建議水平長至少：${needL.toFixed(0)} cm<br>`;
+}
+
+// 如果太陡 → 算合理高度
+if(angle>35){
+let needH=L*Math.tan(35*Math.PI/180);
+suggest+=`👉 或高度建議：${needH.toFixed(0)} cm<br>`;
+}
+
+// ⭐ 安全判斷（踏高）
+let stepStatus="";
+if(stepH>=16 && stepH<=18){
+stepStatus="🟢 標準";
+}else if(stepH<=20){
+stepStatus="🟡 偏高";
+}else{
+stepStatus="🔴 危險";
+}
+
+// ⭐ 顯示
 stairResult.innerHTML=
-`步數:${N} 踏<br>
-每階高:${stepH.toFixed(1)} cm<br>
-每階深:${stepW.toFixed(1)} cm<br><br>
-斜長:${slope.toFixed(1)} cm<br>
-上切:${cutTop.toFixed(1)} cm<br>
-下切:${cutBottom.toFixed(1)} cm<br><br>
-狀態:${status}`;
+`步數：${N} 踏<br>
+每階高：${stepH.toFixed(1)} cm（${stepStatus}）<br>
+每階深：${stepW.toFixed(1)} cm<br><br>
+
+斜長：${slope.toFixed(1)} cm<br>
+每步斜長：${stepSlope.toFixed(1)} cm<br><br>
+
+坡度：${ratio.toFixed(2)}<br>
+角度：${angle.toFixed(1)}°（${slopeStatus}）<br><br>
+
+上切：${cutTop.toFixed(1)} cm<br>
+下切：${cutBottom.toFixed(1)} cm<br><br>
+
+${suggest}`;
 }
-
-</script>
-
-</body>
-</html>
