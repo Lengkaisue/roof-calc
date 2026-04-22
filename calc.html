@@ -60,7 +60,7 @@ button {
 <div id="waveResult" class="result"></div>
 </div>
 
-<!-- 中脊 -->
+<!-- 斜切 -->
 <div class="container">
 <h2>斜切</h2>
 <div class="row"><label>分水</label><input id="fenShui"></div>
@@ -83,7 +83,7 @@ button {
 <div id="cResult" class="result">請輸入資料</div>
 </div>
 
-<!-- 三角形邊長 -->
+<!-- 三角形 -->
 <div class="container">
 <h2>三角形</h2>
 <div class="row"><label>A</label><input id="triA"></div>
@@ -92,12 +92,12 @@ button {
 <div id="triResult" class="result-box"></div>
 </div>
 
-<!-- 樓梯 -->
+<!-- ⭐樓梯（已改好） -->
 <div class="container">
 <h2>樓梯計算</h2>
 <div class="row"><label>總高</label><input id="stairH"></div>
 <div class="row"><label>水平長</label><input id="stairL"></div>
-<div class="row"><label>步數</label><input id="stairN"></div>
+<div class="row"><label>料寬</label><input id="matW"></div>
 <button onclick="calcStair()">計算</button>
 <div id="stairResult" class="result-box"></div>
 </div>
@@ -130,74 +130,24 @@ let h=b*Math.tan(rad);
 centerH.value=h.toFixed(2);
 let slope=Math.sqrt(b*b+h*h);
 let delta=w*Math.tan(rad);
-let cut=w/Math.cos(rad);
 result.innerHTML=`斜長:${slope.toFixed(1)}<br>切:${delta.toFixed(1)}`;
 }
 
-// ⭐ C型鋼（完整修正版）
+// C型鋼（維持你原本版本）
 function calcC(){
 let total=parseFloat(cLen.value);
 let first=parseFloat(firstGap.value);
-
-if(!total||total<=first){
-cResult.innerHTML="無解";
-return;
-}
-
+if(!total||total<=first){cResult.innerHTML="無解";return;}
 let usable=total-first;
-let edge=2;
-
-let normal=[];
-let under60=[];
 let txt="";
-
 for(let n=2;n<100;n++){
 let space=usable/(n-1);
-
-// 60~80 正常
-if(space>=60 && space<=80){
-normal.push({n,space});
+if(space>=60&&space<=80){
+txt+=`${space.toFixed(1)}cm（${n+2}隻）<br>`;
 }
-
-// <60（只允許 <200）
-if(total<200 && space<60){
-under60.push({n,space});
+if(space<60)break;
 }
-
-// >=200 禁止
-if(total>=200 && space<60)break;
-
-// 極限保護
-if(space<30)break;
-}
-
-txt+=`🔧 計算過程：<br>`;
-txt+=`總長 ${total} - 首隻 ${first} = ${usable} cm<br>`;
-txt+=`封邊骨架 +${edge} 隻<br><br>`;
-
-// 正常方案
-if(normal.length>0){
-txt+=`✅ 60～80 cm 標準方案：<br>`;
-normal.forEach(v=>{
-txt+=`間距 ${v.space.toFixed(1)} cm → C型鋼 ${v.n} + 封邊2 = ${v.n+edge} 隻<br>`;
-});
-txt+=`<br>`;
-}
-
-// 小於60方案
-if(total<200 && under60.length>0){
-txt+=`⚠️ 小於60 cm 可行方案：<br>`;
-under60.forEach(v=>{
-txt+=`間距 ${v.space.toFixed(1)} cm → C型鋼 ${v.n} + 封邊2 = ${v.n+edge} 隻<br>`;
-});
-}
-
-// 無解
-if(normal.length===0 && under60.length===0){
-txt="無解";
-}
-
-cResult.innerHTML=txt;
+cResult.innerHTML=txt||"無解";
 }
 
 // 三角形
@@ -207,18 +157,18 @@ if(!A||!B)return;
 triResult.innerHTML=Math.sqrt(A*A+B*B).toFixed(2);
 }
 
-// 樓梯
+// ⭐樓梯（完整版）
 function calcStair(){
 let H=parseFloat(stairH.value);
 let L=parseFloat(stairL.value);
-let result=stairResult;
+let W=parseFloat(matW.value);
 
-if(!H||!L){
-result.innerHTML="請輸入高度與水平長";
+if(!H||!L||!W){
+stairResult.innerHTML="請輸入完整資料";
 return;
 }
 
-// ⭐ 自動步數（17cm基準）
+// 步數
 let N=Math.round(H/17);
 if(N<1)N=1;
 
@@ -226,23 +176,36 @@ if(N<1)N=1;
 let stepH=H/N;
 let stepW=L/N;
 
+// 斜長
+let slope=Math.sqrt(H*H + L*L);
+
+// 角度
+let angle=Math.atan(H/L);
+
+// 上切
+let cutTop=W * Math.tan(angle);
+
+// 下切
+let cutBottom=W * (1/Math.tan(angle));
+
 // 安全判斷
 let status="";
 if(stepH>=16 && stepH<=18){
 status="🟢 標準安全";
-}else if(stepH>18 && stepH<=20){
+}else if(stepH<=20){
 status="🟡 偏高";
-}else if(stepH>20){
-status="🔴 危險樓梯";
 }else{
-status="🟢 偏低（可接受但較矮）";
+status="🔴 危險";
 }
 
-result.innerHTML=
-`建議步數：${N} 踏<br>
-每階高度：${stepH.toFixed(1)} cm<br>
-每階踏深：${stepW.toFixed(1)} cm<br><br>
-安全判斷：${status}`;
+stairResult.innerHTML=
+`步數:${N} 踏<br>
+每階高:${stepH.toFixed(1)} cm<br>
+每階深:${stepW.toFixed(1)} cm<br><br>
+斜長:${slope.toFixed(1)} cm<br>
+上切:${cutTop.toFixed(1)} cm<br>
+下切:${cutBottom.toFixed(1)} cm<br><br>
+狀態:${status}`;
 }
 
 </script>
