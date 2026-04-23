@@ -62,7 +62,7 @@ button {width:100%;padding:12px;margin-top:10px;background:#4da3ff;border:none;b
 <h2>C型鋼間距</h2>
 <div class="row"><label>前斜樑長</label><input type="number" inputmode="decimal" id="frontLen"></div>
 <div class="row"><label>後斜樑長</label><input type="number" inputmode="decimal" id="rearLen"></div>
-<div class="row"><label>首隻預留</label><input type="number" inputmode="decimal" id="firstGap" value="0"></div>
+<div class="row"><label>首隻(固定)</label><input type="number" id="firstGap" value="15" readonly></div>
 <button onclick="calcC()">計算</button>
 <div id="cResult" class="result-box"></div>
 </div>
@@ -136,13 +136,13 @@ function getBestC(total, first) {
     let space = usable / (n - 1);
 
     if (usable <= 200) {
-      // 兩米以下：改為嚴格小於 80 (< 80)
+      // 兩米以下：嚴格小於 80 (< 80)
       if (space >= 50 && space < 80) {
         return { n: n, space: parseFloat(space.toFixed(2)) };
       }
       if (space < 50) break; 
     } else {
-      // 超過兩米：改為嚴格小於 80 (< 80)
+      // 超過兩米：嚴格小於 80 (< 80)
       if (space >= 60 && space < 80) {
         return { n: n, space: parseFloat(space.toFixed(2)) };
       }
@@ -155,7 +155,7 @@ function getBestC(total, first) {
 function calcC() {
   let fLen = parseFloat(document.getElementById('frontLen').value);
   let rLen = parseFloat(document.getElementById('rearLen').value);
-  let gap = parseFloat(document.getElementById('firstGap').value) || 0; // 預防空值
+  let gap = 15; // 程式內部也強制鎖死為 15
   let res = document.getElementById('cResult');
 
   if (isNaN(fLen) || isNaN(rLen)) {
@@ -174,9 +174,10 @@ function calcC() {
   let totalBeams = front.n + rear.n;
   let allTotal = totalBeams + 2;
 
+  // 完美符合您要求的文字格式
   res.innerHTML = 
-    `前斜樑: ${front.n} 隻 (間距 ${front.space} cm)<br>` +
-    `後斜樑: ${rear.n} 隻 (間距 ${rear.space} cm)<br>` +
+    `前斜樑: 首隻 + ${front.n - 1} = ${front.n} 隻 (間距 ${front.space} cm)<br>` +
+    `後斜樑: 首隻 + ${rear.n - 1} = ${rear.n} 隻 (間距 ${rear.space} cm)<br>` +
     `總結算: C型鋼 [${front.n} + ${rear.n}] 隻 + 封邊 2 隻 = 總共 [${allTotal}] 隻`;
 }
 // ===============================================
