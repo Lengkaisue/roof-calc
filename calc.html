@@ -9,12 +9,15 @@
 body {background:#0d0d0d;color:#fff;font-family:Arial;padding:20px;}
 .container {max-width:600px;margin:20px auto;background:#1a1a1a;padding:20px;border-radius:12px;}
 .row {display:flex;margin:10px 0;}
-.row label {width:130px;text-align:right;padding-right:10px;}
+.row label {width:130px;text-align:right;padding-right:10px;align-self:center;}
 .row input,.row select {
 flex:1;padding:8px;background:#262626;color:#fff;
-border:1px solid #555;border-radius:6px;text-align:center;}
-button {width:100%;padding:12px;margin-top:10px;background:#4da3ff;border:none;border-radius:8px;}
-.result,.result-box {margin-top:10px;padding:10px;background:#111;border-radius:8px;}
+border:1px solid #555;border-radius:6px;text-align:center;font-size:16px;}
+/* 隱藏數字輸入框的上下箭頭 */
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button {-webkit-appearance: none; margin: 0;}
+button {width:100%;padding:12px;margin-top:10px;background:#4da3ff;border:none;border-radius:8px;font-size:16px;font-weight:bold;}
+.result,.result-box {margin-top:10px;padding:10px;background:#111;border-radius:8px;min-height:24px;}
 </style>
 </head>
 
@@ -22,15 +25,13 @@ button {width:100%;padding:12px;margin-top:10px;background:#4da3ff;border:none;b
 
 <h1>工程計算器</h1>
 
-<!-- 坪數 -->
 <div class="container">
 <h2>坪數計算</h2>
-<div class="row"><label>長CM</label><input id="len" oninput="calcPing()"></div>
-<div class="row"><label>寬CM</label><input id="wid" oninput="calcPing()"></div>
+<div class="row"><label>長CM</label><input type="number" inputmode="decimal" id="len" oninput="calcPing()"></div>
+<div class="row"><label>寬CM</label><input type="number" inputmode="decimal" id="wid" oninput="calcPing()"></div>
 <div id="pingResult" class="result"></div>
 </div>
 
-<!-- 浪板 -->
 <div class="container">
 <h2>浪板</h2>
 <div class="row"><label>類型</label>
@@ -38,54 +39,49 @@ button {width:100%;padding:12px;margin-top:10px;background:#4da3ff;border:none;b
 <option value="1">單斜</option>
 <option value="2">雙斜</option>
 </select></div>
-<div class="row"><label>長度CM</label><input id="roofLen" oninput="calcWave()"></div>
+<div class="row"><label>長度CM</label><input type="number" inputmode="decimal" id="roofLen" oninput="calcWave()"></div>
 <div id="waveResult" class="result"></div>
 </div>
 
-<!-- 斜切 -->
 <div class="container">
 <h2>斜切</h2>
-<div class="row"><label>分水</label><input id="fenShui"></div>
+<div class="row"><label>分水</label><input type="number" inputmode="decimal" id="fenShui"></div>
 <div class="row"><label>料寬</label>
 <select id="liaoKuan">
 <option value="10">10</option>
 <option value="12.5">12.5</option>
 </select></div>
-<div class="row"><label>底長</label><input id="bottom"></div>
-<div class="row"><label>中脊高</label><input id="centerH" readonly></div>
+<div class="row"><label>底長</label><input type="number" inputmode="decimal" id="bottom"></div>
+<div class="row"><label>中脊高</label><input type="number" id="centerH" readonly></div>
 <button onclick="calc()">計算</button>
 <div id="result" class="result-box"></div>
 </div>
 
-<!-- C型鋼 -->
 <div class="container">
 <h2>C型鋼間距</h2>
-<div class="row"><label>總長</label><input id="cLen" oninput="calcC()"></div>
-<div class="row"><label>首隻</label><input id="firstGap" value="15" readonly></div>
+<div class="row"><label>總長</label><input type="number" inputmode="decimal" id="cLen" oninput="calcC()"></div>
+<div class="row"><label>首隻</label><input type="number" inputmode="decimal" id="firstGap" value="15" readonly></div>
 <div id="cResult" class="result"></div>
 </div>
 
-<!-- 三角形 -->
 <div class="container">
 <h2>三角形</h2>
-<div class="row"><label>A</label><input id="triA"></div>
-<div class="row"><label>B</label><input id="triB"></div>
+<div class="row"><label>A</label><input type="number" inputmode="decimal" id="triA"></div>
+<div class="row"><label>B</label><input type="number" inputmode="decimal" id="triB"></div>
 <button onclick="calcTri()">計算</button>
 <div id="triResult" class="result-box"></div>
 </div>
 
-<!-- 樓梯 -->
 <div class="container">
 <h2>樓梯計算</h2>
-<div class="row"><label>總高</label><input id="stairH"></div>
-<div class="row"><label>水平長</label><input id="stairL"></div>
-<div class="row"><label>料寬</label><input id="matW"></div>
+<div class="row"><label>總高</label><input type="number" inputmode="decimal" id="stairH"></div>
+<div class="row"><label>水平長</label><input type="number" inputmode="decimal" id="stairL"></div>
+<div class="row"><label>料寬</label><input type="number" inputmode="decimal" id="matW"></div>
 <button onclick="calcStair()">計算</button>
 <div id="stairResult" class="result-box"></div>
 </div>
 
 <script>
-
 // 坪數
 function calcPing(){
 let L=parseFloat(document.getElementById('len').value);
@@ -161,9 +157,8 @@ if(isNaN(A)||isNaN(B)){result.innerHTML="";return;}
 result.innerHTML=Math.sqrt(A*A+B*B).toFixed(2);
 }
 
-// ⭐樓梯（穩定完整版）
+// 樓梯（穩定完整版）
 function calcStair(){
-
 let H=parseFloat(document.getElementById('stairH').value);
 let L=parseFloat(document.getElementById('stairL').value);
 let W=parseFloat(document.getElementById('matW').value);
@@ -176,22 +171,16 @@ return;
 
 let slope=Math.sqrt(H*H+L*L);
 let txt="📊 可行方案（工地模式）<br><br>";
-
 let found=false;
 
-// 🔥 掃描步數範圍（你要13~15，也幫你放寬）
 for(let N=10; N<=25; N++){
-
 let stepH=H/N;
 let stepW=L/N;
 let stepSlope=slope/N;
 
-// ✅ 條件
 if(stepH<=22 && stepW>=20){
-
 found=true;
 
-// 安全標示
 let status="";
 if(stepH>=16 && stepH<=18){
 status="🟢標準";
@@ -201,11 +190,9 @@ status="🟡可用";
 status="🔴極限";
 }
 
-// 切角
 let cutTop=W*(H/L);
 let cutBottom=W*(L/H);
 
-// 列表
 txt+=
 `步數：${N} 踏<br>
 每階高：${stepH.toFixed(1)} cm<br>
@@ -223,3 +210,6 @@ txt="⚠️ 無符合條件方案（空間太小）";
 
 result.innerHTML=txt;
 }
+</script>
+</body>
+</html>
