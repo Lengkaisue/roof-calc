@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>工程計算器（穩定版）</title>
+<title>工程計算器</title>
 
 <style>
 body {background:#0d0d0d;color:#fff;font-family:Arial;padding:20px;}
@@ -17,8 +17,8 @@ border:1px solid #555;border-radius:6px;text-align:center;font-size:16px;}
 /* 隱藏數字輸入框的上下箭頭 */
 input[type=number]::-webkit-inner-spin-button, 
 input[type=number]::-webkit-outer-spin-button {-webkit-appearance: none; margin: 0;}
-button {width:100%;padding:12px;margin-top:10px;background:#4da3ff;border:none;border-radius:8px;font-size:16px;font-weight:bold;}
-.result,.result-box {margin-top:10px;padding:10px;background:#111;border-radius:8px;min-height:24px;}
+button {width:100%;padding:12px;margin-top:10px;background:#4da3ff;border:none;border-radius:8px;font-size:16px;font-weight:bold;cursor:pointer;}
+.result,.result-box {margin-top:10px;padding:10px;background:#111;border-radius:8px;min-height:24px;line-height:1.6;}
 </style>
 </head>
 
@@ -60,9 +60,11 @@ button {width:100%;padding:12px;margin-top:10px;background:#4da3ff;border:none;b
 
 <div class="container">
 <h2>C型鋼間距</h2>
-<div class="row"><label>總長</label><input type="number" inputmode="decimal" id="cLen" oninput="calcC()"></div>
-<div class="row"><label>首隻</label><input type="number" inputmode="decimal" id="firstGap" value="15" readonly></div>
-<div id="cResult" class="result"></div>
+<div class="row"><label>前斜樑長</label><input type="number" inputmode="decimal" id="frontLen"></div>
+<div class="row"><label>後斜樑長</label><input type="number" inputmode="decimal" id="rearLen"></div>
+<div class="row"><label>首隻預留</label><input type="number" inputmode="decimal" id="firstGap" value="0"></div>
+<button onclick="calcC()">計算</button>
+<div id="cResult" class="result-box"></div>
 </div>
 
 <div class="container">
@@ -125,48 +127,57 @@ let delta=w*Math.tan(rad);
 result.innerHTML=`斜長:${slope.toFixed(1)}<br>切:${delta.toFixed(1)}`;
 }
 
-// C型鋼 (已修正手機版 ID 抓取方式，並刪除多餘的舊代碼)
-function calcC() {
-  let total = parseFloat(document.getElementById('cLen').value);
-  let first = parseFloat(document.getElementById('firstGap').value);
-  let cResult = document.getElementById('cResult');
-
-  if (!total || total <= first) {
-    cResult.innerHTML = "無解";
-    return;
-  }
-
+// ============== 新版 C型鋼間距 =================
+function getBestC(total, first) {
   let usable = total - first;
-  let edge = 2;
-  let txt = `總長 ${total} - 首隻 ${first} = ${usable} cm<br><br>`;
-  let hasResult = false;
+  if (!total || usable <= 0) return null;
 
   for (let n = 2; n < 100; n++) {
     let space = usable / (n - 1);
 
     if (usable <= 200) {
-      // 兩米以下：列出所有 50 ~ 80 之間的結果
       if (space >= 50 && space <= 80) {
-        txt += `C型鋼 ${n}隻→間距 (${space.toFixed(1)} cm )外 + 封邊骨架2隻 = ${n + edge} 隻<br>`;
-        hasResult = true;
+        return { n: n, space: parseFloat(space.toFixed(2)) };
       }
       if (space < 50) break; 
     } else {
-      // 超過兩米：列出所有 60 ~ 80 之間的結果
       if (space >= 60 && space <= 80) {
-        txt += `C型鋼 ${n}隻→間距 (${space.toFixed(1)} cm )外 + 封邊骨架2隻 = ${n + edge} 隻<br>`;
-        hasResult = true;
+        return { n: n, space: parseFloat(space.toFixed(2)) };
       }
       if (space < 60) break;
     }
   }
+  return null;
+}
 
-  if (!hasResult) {
-    txt += `無解<br>`;
+function calcC() {
+  let fLen = parseFloat(document.getElementById('frontLen').value);
+  let rLen = parseFloat(document.getElementById('rearLen').value);
+  let gap = parseFloat(document.getElementById('firstGap').value) || 0; // 預防空值
+  let res = document.getElementById('cResult');
+
+  if (isNaN(fLen) || isNaN(rLen)) {
+    res.innerHTML = "請輸入前斜樑與後斜樑長度";
+    return;
   }
 
-  cResult.innerHTML = txt;
+  let front = getBestC(fLen, gap);
+  let rear = getBestC(rLen, gap);
+
+  if (!front || !rear) {
+    res.innerHTML = "無解 (無法滿足間距條件)";
+    return;
+  }
+
+  let totalBeams = front.n + rear.n;
+  let allTotal = totalBeams + 2;
+
+  res.innerHTML = 
+    `前斜樑: ${front.n} 隻 (間距 ${front.space} cm)<br>` +
+    `後斜樑: ${rear.n} 隻 (間距 ${rear.space} cm)<br>` +
+    `總結算: C型鋼 [${front.n} + ${rear.n}] 隻 + 封邊 2 隻 = 總共 [${allTotal}] 隻`;
 }
+// ===============================================
 
 // 三角形
 function calcTri(){
@@ -179,7 +190,7 @@ if(isNaN(A)||isNaN(B)){result.innerHTML="";return;}
 result.innerHTML=Math.sqrt(A*A+B*B).toFixed(2);
 }
 
-// 樓梯（穩定完整版）
+// 樓梯
 function calcStair(){
 let H=parseFloat(document.getElementById('stairH').value);
 let L=parseFloat(document.getElementById('stairL').value);
