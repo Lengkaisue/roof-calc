@@ -174,55 +174,52 @@ result.innerHTML="請輸入高度、水平長、料寬";
 return;
 }
 
-// 步數
-let N=Math.round(H/16.5);
-if(N<1)N=1;
+let slope=Math.sqrt(H*H+L*L);
+let txt="📊 可行方案（工地模式）<br><br>";
+
+let found=false;
+
+// 🔥 掃描步數範圍（你要13~15，也幫你放寬）
+for(let N=10; N<=25; N++){
 
 let stepH=H/N;
 let stepW=L/N;
-
-let slope=Math.sqrt(H*H+L*L);
 let stepSlope=slope/N;
 
-let ratio=H/L;
-let angle=Math.atan(ratio)*180/Math.PI;
+// ✅ 條件
+if(stepH<=22 && stepW>=20){
+
+found=true;
+
+// 安全標示
+let status="";
+if(stepH>=16 && stepH<=18){
+status="🟢標準";
+}else if(stepH<=20){
+status="🟡可用";
+}else{
+status="🔴極限";
+}
 
 // 切角
 let cutTop=W*(H/L);
 let cutBottom=W*(L/H);
 
-// 坡度判斷
-let slopeStatus= angle<=35?"🟢舒適":angle<=40?"🟡偏陡":"🔴過陡";
-
-// 建議
-let suggest="";
-if(angle>35){
-suggest+=`👉建議水平長：${(H/Math.tan(35*Math.PI/180)).toFixed(0)}cm<br>`;
-suggest+=`👉或高度：${(L*Math.tan(35*Math.PI/180)).toFixed(0)}cm<br>`;
-}
-
-// 踏高判斷
-let stepStatus= stepH>=16&&stepH<=18?"🟢標準":stepH<=20?"🟡偏高":"🔴危險";
-
-// 顯示
-result.innerHTML=
+// 列表
+txt+=
 `步數：${N} 踏<br>
-每階高：${stepH.toFixed(1)} cm（${stepStatus}）<br>
-每階深：${stepW.toFixed(1)} cm<br><br>
-
-斜長：${slope.toFixed(1)} cm<br>
-每步斜長：${stepSlope.toFixed(1)} cm<br><br>
-
-坡度：${ratio.toFixed(2)}<br>
-角度：${angle.toFixed(1)}°（${slopeStatus}）<br><br>
-
-上切：${cutTop.toFixed(1)} cm<br>
-下切：${cutBottom.toFixed(1)} cm<br><br>
-
-${suggest}`;
+每階高：${stepH.toFixed(1)} cm<br>
+每階深：${stepW.toFixed(1)} cm<br>
+每步斜長：${stepSlope.toFixed(1)} cm<br>
+上切：${cutTop.toFixed(1)} cm｜下切：${cutBottom.toFixed(1)} cm<br>
+狀態：${status}
+<hr>`;
+}
 }
 
-</script>
+if(!found){
+txt="⚠️ 無符合條件方案（空間太小）";
+}
 
-</body>
-</html>
+result.innerHTML=txt;
+}
