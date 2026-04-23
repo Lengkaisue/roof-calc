@@ -3,36 +3,18 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>工程計算器（深色版）</title>
+<title>工程計算器（穩定版）</title>
 
 <style>
-body {
-  background:#0d0d0d;
-  color:#fff;
-  font-family:Arial;
-  padding:20px;
-}
-.container {
-  max-width:600px;
-  margin:20px auto;
-  background:#1a1a1a;
-  padding:20px;
-  border-radius:12px;
-}
-.row {display:flex; margin:10px 0;}
-.row label {width:130px; text-align:right; padding-right:10px;}
+body {background:#0d0d0d;color:#fff;font-family:Arial;padding:20px;}
+.container {max-width:600px;margin:20px auto;background:#1a1a1a;padding:20px;border-radius:12px;}
+.row {display:flex;margin:10px 0;}
+.row label {width:130px;text-align:right;padding-right:10px;}
 .row input,.row select {
-  flex:1; padding:8px; background:#262626; color:#fff;
-  border:1px solid #555; border-radius:6px; text-align:center;
-}
-button {
-  width:100%; padding:12px; margin-top:10px;
-  background:#4da3ff; border:none; border-radius:8px;
-}
-.result,.result-box {
-  margin-top:10px; padding:10px;
-  background:#111; border-radius:8px;
-}
+flex:1;padding:8px;background:#262626;color:#fff;
+border:1px solid #555;border-radius:6px;text-align:center;}
+button {width:100%;padding:12px;margin-top:10px;background:#4da3ff;border:none;border-radius:8px;}
+.result,.result-box {margin-top:10px;padding:10px;background:#111;border-radius:8px;}
 </style>
 </head>
 
@@ -80,7 +62,7 @@ button {
 <h2>C型鋼間距</h2>
 <div class="row"><label>總長</label><input id="cLen" oninput="calcC()"></div>
 <div class="row"><label>首隻</label><input id="firstGap" value="15" readonly></div>
-<div id="cResult" class="result">請輸入資料</div>
+<div id="cResult" class="result"></div>
 </div>
 
 <!-- 三角形 -->
@@ -92,7 +74,7 @@ button {
 <div id="triResult" class="result-box"></div>
 </div>
 
-<!-- ⭐樓梯（已改好） -->
+<!-- 樓梯 -->
 <div class="container">
 <h2>樓梯計算</h2>
 <div class="row"><label>總高</label><input id="stairH"></div>
@@ -106,40 +88,57 @@ button {
 
 // 坪數
 function calcPing(){
-let L=len.value,W=wid.value;
-if(!L||!W)return pingResult.innerHTML="";
-let cm=L*W;
-pingResult.innerHTML=`${(cm/33057.85).toFixed(2)}坪`;
+let L=parseFloat(document.getElementById('len').value);
+let W=parseFloat(document.getElementById('wid').value);
+let result=document.getElementById('pingResult');
+
+if(isNaN(L)||isNaN(W)){result.innerHTML="";return;}
+result.innerHTML=`${(L*W/33057.85).toFixed(2)}坪`;
 }
 
 // 浪板
 function calcWave(){
-let L=roofLen.value;
-if(!L)return;
+let L=parseFloat(document.getElementById('roofLen').value);
+let type=document.getElementById('slopeType').value;
+let result=document.getElementById('waveResult');
+
+if(isNaN(L)){result.innerHTML="";return;}
+
 let pcs=Math.ceil(L/75);
-if(slopeType.value==2)pcs*=2;
-waveResult.innerHTML=`${pcs}片`;
+if(type==2)pcs*=2;
+result.innerHTML=`${pcs}片`;
 }
 
 // 斜切
 function calc(){
-let f=fenShui.value,w=liaoKuan.value,b=bottom.value;
-if(!f||!w||!b)return;
+let f=parseFloat(document.getElementById('fenShui').value);
+let w=parseFloat(document.getElementById('liaoKuan').value);
+let b=parseFloat(document.getElementById('bottom').value);
+let result=document.getElementById('result');
+
+if(isNaN(f)||isNaN(w)||isNaN(b)){result.innerHTML="請輸入資料";return;}
+
 let rad=Math.atan(f/10);
 let h=b*Math.tan(rad);
-centerH.value=h.toFixed(2);
+document.getElementById('centerH').value=h.toFixed(2);
+
 let slope=Math.sqrt(b*b+h*h);
 let delta=w*Math.tan(rad);
+
 result.innerHTML=`斜長:${slope.toFixed(1)}<br>切:${delta.toFixed(1)}`;
 }
 
-// C型鋼（維持你原本版本）
+// C型鋼
 function calcC(){
-let total=parseFloat(cLen.value);
-let first=parseFloat(firstGap.value);
-if(!total||total<=first){cResult.innerHTML="無解";return;}
+let total=parseFloat(document.getElementById('cLen').value);
+let first=parseFloat(document.getElementById('firstGap').value);
+let result=document.getElementById('cResult');
+
+if(isNaN(total)||total<=first){result.innerHTML="無解";return;}
+
 let usable=total-first;
 let txt="";
+
 for(let n=2;n<100;n++){
 let space=usable/(n-1);
 if(space>=60&&space<=80){
@@ -147,88 +146,66 @@ txt+=`${space.toFixed(1)}cm（${n+2}隻）<br>`;
 }
 if(space<60)break;
 }
-cResult.innerHTML=txt||"無解";
+
+result.innerHTML=txt||"無解";
 }
 
 // 三角形
 function calcTri(){
-let A=triA.value,B=triB.value;
-if(!A||!B)return;
-triResult.innerHTML=Math.sqrt(A*A+B*B).toFixed(2);
+let A=parseFloat(document.getElementById('triA').value);
+let B=parseFloat(document.getElementById('triB').value);
+let result=document.getElementById('triResult');
+
+if(isNaN(A)||isNaN(B)){result.innerHTML="";return;}
+
+result.innerHTML=Math.sqrt(A*A+B*B).toFixed(2);
 }
 
-// ⭐樓梯（完整版）
+// ⭐樓梯（穩定完整版）
 function calcStair(){
 
-let H=parseFloat(stairH.value);
-let L=parseFloat(stairL.value);
-let W=parseFloat(matW.value);
+let H=parseFloat(document.getElementById('stairH').value);
+let L=parseFloat(document.getElementById('stairL').value);
+let W=parseFloat(document.getElementById('matW').value);
+let result=document.getElementById('stairResult');
 
-if(!H||!L||!W){
-stairResult.innerHTML="請輸入高度、水平長、料寬";
+if(isNaN(H)||isNaN(L)||isNaN(W)){
+result.innerHTML="請輸入高度、水平長、料寬";
 return;
 }
 
-// ⭐ 步數（抓16.5）
+// 步數
 let N=Math.round(H/16.5);
 if(N<1)N=1;
 
-// 每階
 let stepH=H/N;
 let stepW=L/N;
 
-// ⭐ 斜長
-let slope=Math.sqrt(H*H + L*L);
-
-// ⭐ 每步斜長
+let slope=Math.sqrt(H*H+L*L);
 let stepSlope=slope/N;
 
-// ⭐ 坡度
 let ratio=H/L;
 let angle=Math.atan(ratio)*180/Math.PI;
 
-// ⭐ 切角
-let rad=Math.atan(H/L);
-let cutTop=W*Math.tan(rad);
-let cutBottom=W*(1/Math.tan(rad));
+// 切角
+let cutTop=W*(H/L);
+let cutBottom=W*(L/H);
 
-// ⭐ 坡度判斷
-let slopeStatus="";
-if(angle<=35){
-slopeStatus="🟢 舒適坡度";
-}else if(angle<=40){
-slopeStatus="🟡 偏陡";
-}else{
-slopeStatus="🔴 過陡";
-}
+// 坡度判斷
+let slopeStatus= angle<=35?"🟢舒適":angle<=40?"🟡偏陡":"🔴過陡";
 
-// ⭐ 建議（核心）
+// 建議
 let suggest="";
-
-// 如果太陡 → 算需要長度
 if(angle>35){
-let needL=H/Math.tan(35*Math.PI/180);
-suggest+=`👉 建議水平長至少：${needL.toFixed(0)} cm<br>`;
+suggest+=`👉建議水平長：${(H/Math.tan(35*Math.PI/180)).toFixed(0)}cm<br>`;
+suggest+=`👉或高度：${(L*Math.tan(35*Math.PI/180)).toFixed(0)}cm<br>`;
 }
 
-// 如果太陡 → 算合理高度
-if(angle>35){
-let needH=L*Math.tan(35*Math.PI/180);
-suggest+=`👉 或高度建議：${needH.toFixed(0)} cm<br>`;
-}
+// 踏高判斷
+let stepStatus= stepH>=16&&stepH<=18?"🟢標準":stepH<=20?"🟡偏高":"🔴危險";
 
-// ⭐ 安全判斷（踏高）
-let stepStatus="";
-if(stepH>=16 && stepH<=18){
-stepStatus="🟢 標準";
-}else if(stepH<=20){
-stepStatus="🟡 偏高";
-}else{
-stepStatus="🔴 危險";
-}
-
-// ⭐ 顯示
-stairResult.innerHTML=
+// 顯示
+result.innerHTML=
 `步數：${N} 踏<br>
 每階高：${stepH.toFixed(1)} cm（${stepStatus}）<br>
 每階深：${stepW.toFixed(1)} cm<br><br>
@@ -244,3 +221,8 @@ stairResult.innerHTML=
 
 ${suggest}`;
 }
+
+</script>
+
+</body>
+</html>
