@@ -125,21 +125,46 @@ result.innerHTML=`斜長:${slope.toFixed(1)}<br>切:${delta.toFixed(1)}`;
 }
 
 // C型鋼
-function calcC(){
-let total=parseFloat(cLen.value);
-let first=parseFloat(firstGap.value);
+function calcC() {
+  let total = parseFloat(cLen.value);
+  let first = parseFloat(firstGap.value);
 
-if(!total||total<=first){
-cResult.innerHTML="無解";
-return;
+  if (!total || total <= first) {
+    cResult.innerHTML = "無解";
+    return;
+  }
+
+  let usable = total - first;
+  let edge = 2;
+  let txt = `總長 ${total} - 首隻 ${first} = ${usable} cm<br><br>`;
+  let hasResult = false;
+
+  for (let n = 2; n < 100; n++) {
+    let space = usable / (n - 1);
+
+    if (usable <= 200) {
+      // 兩米以下：列出所有 50 ~ 80 之間的結果
+      if (space >= 50 && space <= 80) {
+        txt += `C型鋼 ${n}隻→間距 (${space.toFixed(1)} cm )外 + 封邊骨架2隻 = ${n + edge} 隻<br>`;
+        hasResult = true;
+      }
+      if (space < 50) break; 
+    } else {
+      // 超過兩米：列出所有 60 ~ 80 之間的結果
+      if (space >= 60 && space <= 80) {
+        txt += `C型鋼 ${n}隻→間距 (${space.toFixed(1)} cm )外 + 封邊骨架2隻 = ${n + edge} 隻<br>`;
+        hasResult = true;
+      }
+      if (space < 60) break;
+    }
+  }
+
+  if (!hasResult) {
+    txt += `無解<br>`;
+  }
+
+  cResult.innerHTML = txt;
 }
-
-let usable=total-first;
-let edge=2;
-
-let normal=[];
-let under60=[];
-let txt="";
 
 // ===== 計算 =====
 for(let n=2;n<100;n++){
