@@ -136,12 +136,14 @@ function getBestC(total, first) {
     let space = usable / (n - 1);
 
     if (usable <= 200) {
-      if (space >= 50 && space <= 80) {
+      // 兩米以下：改為嚴格小於 80 (< 80)
+      if (space >= 50 && space < 80) {
         return { n: n, space: parseFloat(space.toFixed(2)) };
       }
       if (space < 50) break; 
     } else {
-      if (space >= 60 && space <= 80) {
+      // 超過兩米：改為嚴格小於 80 (< 80)
+      if (space >= 60 && space < 80) {
         return { n: n, space: parseFloat(space.toFixed(2)) };
       }
       if (space < 60) break;
