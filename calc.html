@@ -126,26 +126,72 @@ result.innerHTML=`斜長:${slope.toFixed(1)}<br>切:${delta.toFixed(1)}`;
 
 // C型鋼
 function calcC(){
-let total=parseFloat(document.getElementById('cLen').value);
-let first=parseFloat(document.getElementById('firstGap').value);
-let result=document.getElementById('cResult');
+let total=parseFloat(cLen.value);
+let first=parseFloat(firstGap.value);
 
-if(isNaN(total)||total<=first){result.innerHTML="無解";return;}
+if(!total||total<=first){
+cResult.innerHTML="無解";
+return;
+}
 
 let usable=total-first;
+let edge=2;
+
+let normal=[];
+let under60=[];
 let txt="";
 
+// ===== 計算 =====
 for(let n=2;n<100;n++){
 let space=usable/(n-1);
-if(space>=60&&space<=80){
-txt+=`${space.toFixed(1)}cm（${n+2}隻）<br>`;
-}
-if(space<60)break;
+
+// ===== 正常區 60~80 =====
+if(space>=60 && space<=80){
+normal.push({n,space});
 }
 
-result.innerHTML=txt||"無解";
+// ===== <60（只允許 <200）=====
+if(total<200 && space<60){
+under60.push({n,space});
 }
 
+// ===== >=200 嚴格禁止破壞 =====
+if(total>=200 && space<60)break;
+
+// 極限保護
+if(space<30)break;
+}
+
+// ===== 輸出 =====
+txt+=`🔧 計算過程：<br>`;
+txt+=`總長 ${total} - 首隻 ${first} = ${usable} cm<br>`;
+txt+=`封邊骨架固定 +${edge} 隻<br><br>`;
+
+// ===== 正常解 =====
+if(normal.length>0){
+txt+=`✅ 60～80 cm 標準方案：<br>`;
+normal.forEach(v=>{
+txt+=`間距 ${v.space.toFixed(1)} cm → C型鋼 ${v.n} + 封邊2 = ${v.n+edge} 隻<br>`;
+});
+txt+=`<br>`;
+}
+
+// ===== 小於60（<200 全列）=====
+if(total<200 && under60.length>0){
+txt+=`⚠️ 小於60 cm 可行方案：<br>`;
+under60.forEach(v=>{
+txt+=`間距 ${v.space.toFixed(1)} cm → C型鋼 ${v.n} + 封邊2 = ${v.n+edge} 隻<br>`;
+});
+txt+=`<br>`;
+}
+
+// ===== 無解 =====
+if(normal.length===0 && under60.length===0){
+txt="無解";
+}
+
+cResult.innerHTML=txt;
+}
 // 三角形
 function calcTri(){
 let A=parseFloat(document.getElementById('triA').value);
