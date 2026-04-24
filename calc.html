@@ -19,6 +19,8 @@ input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {-webkit-appearance: none; margin: 0;}
 button {width:100%;padding:12px;margin-top:10px;background:#4da3ff;border:none;border-radius:8px;font-size:16px;font-weight:bold;cursor:pointer;}
 .result,.result-box {margin-top:10px;padding:10px;background:#111;border-radius:8px;min-height:24px;line-height:1.6;}
+/* 新增：提示字體的樣式 */
+.reminder {text-align:center; font-size:14px; color:#aaa; margin-bottom:15px; background:#222; padding:8px; border-radius:6px;}
 </style>
 </head>
 
@@ -75,6 +77,15 @@ button {width:100%;padding:12px;margin-top:10px;background:#4da3ff;border:none;b
 <div id="triResult" class="result-box"></div>
 </div>
 
+<div class="container">
+<h2>鋼構平台計算</h2>
+<div class="reminder">⚠️ 壓花板整件4x8尺 = 122cm x 244cm</div>
+<div class="row"><label>水平長度</label><input type="number" inputmode="decimal" id="platL"></div>
+<div class="row"><label>垂直高度</label><input type="number" inputmode="decimal" id="platH"></div>
+<div class="row"><label>料寬</label><input type="number" inputmode="decimal" id="platW"></div>
+<button onclick="calcPlat()">計算</button>
+<div id="platResult" class="result-box"></div>
+</div>
 <div class="container">
 <h2>樓梯計算</h2>
 <div class="row"><label>總高</label><input type="number" inputmode="decimal" id="stairH"></div>
@@ -192,6 +203,29 @@ if(isNaN(A)||isNaN(B)){result.innerHTML="";return;}
 
 result.innerHTML=Math.sqrt(A*A+B*B).toFixed(2);
 }
+
+// ================= 新增：鋼構平台計算邏輯 =================
+function calcPlat(){
+let L=parseFloat(document.getElementById('platL').value);
+let H=parseFloat(document.getElementById('platH').value);
+let W=parseFloat(document.getElementById('platW').value);
+let result=document.getElementById('platResult');
+
+if(isNaN(L)||isNaN(H)||isNaN(W)){
+result.innerHTML="請輸入水平長度、垂直高度與料寬";
+return;
+}
+
+let slope=Math.sqrt(L*L+H*H);
+let cutTop=W*(H/L);
+let cutBottom=W*(L/H);
+
+result.innerHTML=
+`斜長：${slope.toFixed(1)} cm<br>`+
+`上切：${cutTop.toFixed(1)} cm<br>`+
+`下切：${cutBottom.toFixed(1)} cm`;
+}
+// ==========================================================
 
 // 樓梯
 function calcStair(){
