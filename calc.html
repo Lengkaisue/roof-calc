@@ -19,7 +19,6 @@ input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {-webkit-appearance: none; margin: 0;}
 button {width:100%;padding:12px;margin-top:10px;background:#4da3ff;border:none;border-radius:8px;font-size:16px;font-weight:bold;cursor:pointer;}
 .result,.result-box {margin-top:10px;padding:10px;background:#111;border-radius:8px;min-height:24px;line-height:1.6;}
-/* 新增：提示字體的樣式 */
 .reminder {text-align:center; font-size:14px; color:#aaa; margin-bottom:15px; background:#222; padding:8px; border-radius:6px;}
 </style>
 </head>
@@ -70,14 +69,6 @@ button {width:100%;padding:12px;margin-top:10px;background:#4da3ff;border:none;b
 </div>
 
 <div class="container">
-<h2>三角形</h2>
-<div class="row"><label>A</label><input type="number" inputmode="decimal" id="triA"></div>
-<div class="row"><label>B</label><input type="number" inputmode="decimal" id="triB"></div>
-<button onclick="calcTri()">計算</button>
-<div id="triResult" class="result-box"></div>
-</div>
-
-<div class="container">
 <h2>鋼構平台計算</h2>
 <div class="reminder">⚠️ 壓花板整件4x8尺 = 122cm x 244cm</div>
 <div class="row"><label>水平長度</label><input type="number" inputmode="decimal" id="platL"></div>
@@ -86,6 +77,7 @@ button {width:100%;padding:12px;margin-top:10px;background:#4da3ff;border:none;b
 <button onclick="calcPlat()">計算</button>
 <div id="platResult" class="result-box"></div>
 </div>
+
 <div class="container">
 <h2>樓梯計算</h2>
 <div class="row"><label>總高</label><input type="number" inputmode="decimal" id="stairH"></div>
@@ -138,7 +130,7 @@ let delta=w*Math.tan(rad);
 result.innerHTML=`斜長:${slope.toFixed(1)}<br>切:${delta.toFixed(1)}`;
 }
 
-// ============== 新版 C型鋼間距 =================
+// C型鋼間距
 function getBestC(total, first) {
   let usable = total - first;
   if (!total || usable <= 0) return null;
@@ -147,13 +139,11 @@ function getBestC(total, first) {
     let space = usable / (n - 1);
 
     if (usable <= 200) {
-      // 兩米以下：嚴格小於 80 (< 80)
       if (space >= 50 && space < 80) {
         return { n: n, space: parseFloat(space.toFixed(2)) };
       }
       if (space < 50) break; 
     } else {
-      // 超過兩米：嚴格小於 80 (< 80)
       if (space >= 60 && space < 80) {
         return { n: n, space: parseFloat(space.toFixed(2)) };
       }
@@ -166,7 +156,7 @@ function getBestC(total, first) {
 function calcC() {
   let fLen = parseFloat(document.getElementById('frontLen').value);
   let rLen = parseFloat(document.getElementById('rearLen').value);
-  let gap = 15; // 程式內部也強制鎖死為 15
+  let gap = 15; 
   let res = document.getElementById('cResult');
 
   if (isNaN(fLen) || isNaN(rLen)) {
@@ -185,26 +175,13 @@ function calcC() {
   let totalBeams = front.n + rear.n;
   let allTotal = totalBeams + 2;
 
-  // 完美符合您要求的文字格式
   res.innerHTML = 
     `前斜樑: 首隻 + ${front.n - 1} = ${front.n} 隻 (間距 ${front.space} cm)<br>` +
     `後斜樑: 首隻 + ${rear.n - 1} = ${rear.n} 隻 (間距 ${rear.space} cm)<br>` +
     `總結算: C型鋼 [${front.n} + ${rear.n}] 隻 + 封邊 2 隻 = 總共 [${allTotal}] 隻`;
 }
-// ===============================================
 
-// 三角形
-function calcTri(){
-let A=parseFloat(document.getElementById('triA').value);
-let B=parseFloat(document.getElementById('triB').value);
-let result=document.getElementById('triResult');
-
-if(isNaN(A)||isNaN(B)){result.innerHTML="";return;}
-
-result.innerHTML=Math.sqrt(A*A+B*B).toFixed(2);
-}
-
-// ================= 新增：鋼構平台計算邏輯 =================
+// 鋼構平台計算
 function calcPlat(){
 let L=parseFloat(document.getElementById('platL').value);
 let H=parseFloat(document.getElementById('platH').value);
@@ -225,7 +202,6 @@ result.innerHTML=
 `上切：${cutTop.toFixed(1)} cm<br>`+
 `下切：${cutBottom.toFixed(1)} cm`;
 }
-// ==========================================================
 
 // 樓梯
 function calcStair(){
@@ -275,11 +251,4 @@ txt+=
 }
 
 if(!found){
-txt="⚠️ 無符合條件方案（空間太小，建議調整總高或水平長度）";
-}
-
-result.innerHTML=txt;
-}
-</script>
-</body>
-</html>
+txt="⚠️ 無
