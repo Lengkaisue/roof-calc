@@ -203,60 +203,89 @@ result.innerHTML=
 `下切：${cutBottom.toFixed(1)} cm`;
 }
 
-// 樓梯
+// ======== 樓梯計算 (新增顯示極限上下方案) ========
 function calcStair(){
-let H=parseFloat(document.getElementById('stairH').value);
-let L=parseFloat(document.getElementById('stairL').value);
-let W=parseFloat(document.getElementById('matW').value);
-let result=document.getElementById('stairResult');
+  let H=parseFloat(document.getElementById('stairH').value);
+  let L=parseFloat(document.getElementById('stairL').value);
+  let W=parseFloat(document.getElementById('matW').value);
+  let result=document.getElementById('stairResult');
 
-if(isNaN(H)||isNaN(L)||isNaN(W)){
-result.innerHTML="請輸入高度、水平長、料寬";
-return;
+  if(isNaN(H)||isNaN(L)||isNaN(W)){
+    result.innerHTML="請輸入高度、水平長、料寬";
+    return;
+  }
+
+  let slope=Math.sqrt(H*H+L*L);
+  let validNs = [];
+
+  // 第一階段：先篩出符合嚴格標準 (高<=23, 深>=20) 的踏數
+  for(let N=5; N<=40; N++){
+    let stepH = H/N;
+    let stepW = L/N;
+    if(stepH<=23 && stepW>=20){
+      validNs.push(N);
+    }
+  }
+
+  // 決定要顯示的踏數範圍
+  let minN, maxN;
+  if(validNs.length > 0){
+    // 如果有標準解，就抓最小跟最大值，並往外擴張一組 (-1 和 +1)
+    minN = Math.min(...validNs) - 1;
+    maxN = Math.max(...validNs) + 1;
+  } else {
+    // 萬一空間真的太極端，完全沒有標準解，就抓接近 20cm 階高當基準點推估
+    let idealN = Math.round(H / 20);
+    minN = idealN - 1;
+    maxN = idealN + 1;
+  }
+  
+  minN = Math.max(2, minN); // 確保最小不會低於 2 踏
+
+  let txt="📊 方案評估（含上下極限參考）<br><br>";
+
+  // 第二階段：印出選定範圍內的所有結果
+  for(let N=minN; N<=maxN; N++){
+    let stepH = H/N;
+    let stepW = L/N;
+    let stepSlope = slope/N;
+    let status = "";
+
+    // 狀態判定
+    if(stepH<=23 && stepW>=20){
+      if(stepH>=16 && stepH<=18){
+        status="🟢標準";
+      }else if(stepH<=20){
+        status="🟡可用";
+      }else{
+        status="🟠極限勉強";
+      }
+    } else {
+      // 不符合標準的提示致命傷
+      if (stepH > 23) {
+        status="🔴階高太高 (建議降高)";
+      } else if (stepW < 20) {
+        status="🔴階深太窄 (容易踩空)";
+      } else {
+        status="🔴規格外";
+      }
+    }
+
+    let cutTop = W*(H/L);
+    let cutBottom = W*(L/H);
+
+    txt+=
+    `步數：${N} 踏<br>
+    每階高：${stepH.toFixed(1)} cm<br>
+    每階深：${stepW.toFixed(1)} cm<br>
+    每步斜長：${stepSlope.toFixed(1)} cm<br>
+    上切：${cutTop.toFixed(1)} cm｜下切：${cutBottom.toFixed(1)} cm<br>
+    狀態：${status}
+    <hr>`;
+  }
+
+  result.innerHTML=txt;
 }
-
-let slope=Math.sqrt(H*H+L*L);
-let txt="📊 可行方案（工地模式）<br><br>";
-let found=false;
-
-for(let N=10; N<=25; N++){
-let stepH=H/N;
-let stepW=L/N;
-let stepSlope=slope/N;
-
-if(stepH<=23 && stepW>=20){
-found=true;
-
-let status="";
-if(stepH>=16 && stepH<=18){
-status="🟢標準";
-}else if(stepH<=20){
-status="🟡可用";
-}else{
-status="🔴極限";
-}
-
-let cutTop=W*(H/L);
-let cutBottom=W*(L/H);
-
-txt+=
-`步數：${N} 踏<br>
-每階高：${stepH.toFixed(1)} cm<br>
-每階深：${stepW.toFixed(1)} cm<br>
-每步斜長：${stepSlope.toFixed(1)} cm<br>
-上切：${cutTop.toFixed(1)} cm｜下切：${cutBottom.toFixed(1)} cm<br>
-狀態：${status}
-<hr>`;
-}
-}
-
-if(!found){
-txt="⚠️ 無法找到符合標準的配置（階高或階深超出合理範圍）。";
-}
-
-result.innerHTML=txt;
-}
-
 </script>
 </body>
 </html>
