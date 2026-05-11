@@ -17,9 +17,39 @@ border:1px solid #555;border-radius:6px;text-align:center;font-size:16px;}
 /* 隱藏數字輸入框的上下箭頭 */
 input[type=number]::-webkit-inner-spin-button, 
 input[type=number]::-webkit-outer-spin-button {-webkit-appearance: none; margin: 0;}
-button {width:100%;padding:12px;margin-top:10px;background:#4da3ff;border:none;border-radius:8px;font-size:16px;font-weight:bold;cursor:pointer;}
+
+/* ================== 按鈕 UI/UX 大升級 ================== */
+button {
+    width: 100%;
+    padding: 14px; /* 增加觸控範圍 */
+    margin-top: 15px;
+    background: #1a73e8; /* 更扎實的深藍色 */
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 18px; /* 字體稍微加大 */
+    font-weight: bold;
+    cursor: pointer;
+    /* 製作 3D 立體底部陰影 */
+    box-shadow: 0 5px 0 #114b9e; 
+    /* 讓下壓動作有順暢的動畫感 */
+    transition: all 0.1s ease; 
+    /* 消除手機點擊時預設的灰色方塊閃爍 */
+    -webkit-tap-highlight-color: transparent; 
+}
+/* 手機點下去那一瞬間的物理反饋感 */
+button:active {
+    transform: translateY(5px); /* 按鈕實際往下沉 5px */
+    box-shadow: 0 0 0 #114b9e;  /* 陰影消失，營造壓到底的感覺 */
+    background: #155cb8; /* 按下時顏色變深 */
+}
+/* ======================================================== */
+
 .result,.result-box {margin-top:10px;padding:10px;background:#111;border-radius:8px;min-height:24px;line-height:1.6;}
 .reminder {text-align:center; font-size:14px; color:#aaa; margin-bottom:15px; background:#222; padding:8px; border-radius:6px;}
+/* 單雙數警告顏色標示 */
+.warning-text {color: #ffaa00;}
+.safe-text {color: #4da3ff;}
 </style>
 </head>
 
@@ -203,7 +233,7 @@ result.innerHTML=
 `下切：${cutBottom.toFixed(1)} cm`;
 }
 
-// ======== 樓梯計算 (新增顯示極限上下方案) ========
+// ======== 樓梯計算 ========
 function calcStair(){
   let H=parseFloat(document.getElementById('stairH').value);
   let L=parseFloat(document.getElementById('stairL').value);
@@ -218,7 +248,7 @@ function calcStair(){
   let slope=Math.sqrt(H*H+L*L);
   let validNs = [];
 
-  // 第一階段：先篩出符合嚴格標準 (高<=23, 深>=20) 的踏數
+  // 第一階段：篩出符合標準的踏數
   for(let N=5; N<=40; N++){
     let stepH = H/N;
     let stepW = L/N;
@@ -227,22 +257,21 @@ function calcStair(){
     }
   }
 
-  // 決定要顯示的踏數範圍
+  // 決定要顯示的範圍
   let minN, maxN;
   if(validNs.length > 0){
-    // 如果有標準解，就抓最小跟最大值，並往外擴張一組 (-1 和 +1)
     minN = Math.min(...validNs) - 1;
     maxN = Math.max(...validNs) + 1;
   } else {
-    // 萬一空間真的太極端，完全沒有標準解，就抓接近 20cm 階高當基準點推估
     let idealN = Math.round(H / 20);
     minN = idealN - 1;
     maxN = idealN + 1;
   }
   
-  minN = Math.max(2, minN); // 確保最小不會低於 2 踏
+  minN = Math.max(2, minN); // 確保最小不會低於 2 段
 
-  let txt="📊 方案評估（含上下極限參考）<br><br>";
+  // 樓梯斜長顯示
+  let txt=`📊 方案評估（含上下極限參考）<br>📐 樓梯斜長：${slope.toFixed(1)} cm<br><br>`;
 
   // 第二階段：印出選定範圍內的所有結果
   for(let N=minN; N<=maxN; N++){
@@ -261,7 +290,6 @@ function calcStair(){
         status="🟠極限勉強";
       }
     } else {
-      // 不符合標準的提示致命傷
       if (stepH > 23) {
         status="🔴階高太高 (建議降高)";
       } else if (stepW < 20) {
@@ -273,9 +301,15 @@ function calcStair(){
 
     let cutTop = W*(H/L);
     let cutBottom = W*(L/H);
+    
+    // 扣除最後一階上平台的踏數，並判斷單雙數
+    let treadCount = N - 1;
+    let isOdd = (treadCount % 2 !== 0);
+    let treadStatus = isOdd ? '<span class="safe-text">🟢單數OK</span>' : '<span class="warning-text">⚠️雙數忌諱</span>';
 
     txt+=
-    `步數：${N} 踏<br>
+    `分段：${N} 階 (落差段數)<br>
+    實體踏板：${treadCount} 片 ${treadStatus}<br>
     每階高：${stepH.toFixed(1)} cm<br>
     每階深：${stepW.toFixed(1)} cm<br>
     每步斜長：${stepSlope.toFixed(1)} cm<br>
