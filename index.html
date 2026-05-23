@@ -6,14 +6,53 @@
 <title>工程計算器</title>
 
 <style>
-body {background:#0d0d0d;color:#fff;font-family:Arial;padding:20px;}
-.container {max-width:600px;margin:20px auto;background:#1a1a1a;padding:20px;border-radius:12px;}
-.row {display:flex;margin:10px 0;}
-.row label {width:130px;text-align:right;padding-right:10px;align-self:center;}
+body {
+    background: #0d0d0d;
+    color: #fff;
+    font-family: Arial;
+    padding: 20px;
+    margin: 0;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* ================== 新增：網格排版 (Grid Layout) ================== */
+.main-grid {
+    display: grid;
+    /* 自動適應寬度，最小寬度 320px，空間夠就並排，不夠就換行 */
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px; /* 區塊之間的間距 */
+    max-width: 1400px; /* 限制最大總寬度 */
+    margin: 0 auto; /* 置中 */
+}
+/* ================================================================= */
+
+.container {
+    background: #1a1a1a;
+    padding: 20px;
+    border-radius: 12px;
+    /* 讓容器內部支援彈性佈局，方便將結果框推到底部 */
+    display: flex;
+    flex-direction: column; 
+}
+.container h2 {
+    margin-top: 0;
+    border-bottom: 2px solid #333;
+    padding-bottom: 10px;
+}
+
+.row {display:flex; margin:10px 0;}
+.row label {width:100px; text-align:right; padding-right:10px; align-self:center;}
+
 /* 字體設定 16px 可防止 iPhone 自動放大畫面 */
-.row input,.row select {
-flex:1;padding:8px;background:#262626;color:#fff;
-border:1px solid #555;border-radius:6px;text-align:center;font-size:16px;}
+.row input, .row select {
+    flex:1; padding:8px; background:#262626; color:#fff;
+    border:1px solid #555; border-radius:6px; text-align:center; font-size:16px;
+}
+
 /* 隱藏數字輸入框的上下箭頭 */
 input[type=number]::-webkit-inner-spin-button, 
 input[type=number]::-webkit-outer-spin-button {-webkit-appearance: none; margin: 0;}
@@ -21,31 +60,34 @@ input[type=number]::-webkit-outer-spin-button {-webkit-appearance: none; margin:
 /* ================== 按鈕 UI/UX 大升級 ================== */
 button {
     width: 100%;
-    padding: 14px; /* 增加觸控範圍 */
+    padding: 14px; 
     margin-top: 15px;
-    background: #1a73e8; /* 更扎實的深藍色 */
+    background: #1a73e8; 
     color: #ffffff;
     border: none;
     border-radius: 8px;
-    font-size: 18px; /* 字體稍微加大 */
+    font-size: 18px; 
     font-weight: bold;
     cursor: pointer;
-    /* 製作 3D 立體底部陰影 */
     box-shadow: 0 5px 0 #114b9e; 
-    /* 讓下壓動作有順暢的動畫感 */
     transition: all 0.1s ease; 
-    /* 消除手機點擊時預設的灰色方塊閃爍 */
     -webkit-tap-highlight-color: transparent; 
 }
-/* 手機點下去那一瞬間的物理反饋感 */
 button:active {
-    transform: translateY(5px); /* 按鈕實際往下沉 5px */
-    box-shadow: 0 0 0 #114b9e;  /* 陰影消失，營造壓到底的感覺 */
-    background: #155cb8; /* 按下時顏色變深 */
+    transform: translateY(5px); 
+    box-shadow: 0 0 0 #114b9e;  
+    background: #155cb8; 
 }
 /* ======================================================== */
 
-.result,.result-box {margin-top:10px;padding:10px;background:#111;border-radius:8px;min-height:24px;line-height:1.6;}
+.result, .result-box {
+    margin-top: 15px; /* auto 可以把結果框推到區塊最底部 */
+    padding: 10px; 
+    background: #111; 
+    border-radius: 8px; 
+    min-height: 24px; 
+    line-height: 1.6;
+}
 .reminder {text-align:center; font-size:14px; color:#aaa; margin-bottom:15px; background:#222; padding:8px; border-radius:6px;}
 /* 單雙數警告顏色標示 */
 .warning-text {color: #ffaa00;}
@@ -57,126 +99,117 @@ button:active {
 
 <h1>工程計算器</h1>
 
-<div class="container">
-<h2>坪數計算</h2>
-<div class="row"><label>長CM</label><input type="number" inputmode="decimal" id="len" oninput="calcPing()"></div>
-<div class="row"><label>寬CM</label><input type="number" inputmode="decimal" id="wid" oninput="calcPing()"></div>
-<div id="pingResult" class="result"></div>
-</div>
+<div class="main-grid">
 
-<div class="container">
-<h2>浪板</h2>
-<div class="row"><label>類型</label>
-<select id="slopeType" onchange="calcWave()">
-<option value="1">單斜</option>
-<option value="2">雙斜</option>
-</select></div>
-<div class="row"><label>長度CM</label><input type="number" inputmode="decimal" id="roofLen" oninput="calcWave()"></div>
-<div id="waveResult" class="result"></div>
-</div>
+    <div class="container">
+        <h2>坪數計算</h2>
+        <div class="row"><label>長CM</label><input type="number" inputmode="decimal" id="len" oninput="calcPing()"></div>
+        <div class="row"><label>寬CM</label><input type="number" inputmode="decimal" id="wid" oninput="calcPing()"></div>
+        <div id="pingResult" class="result"></div>
+    </div>
 
-<div class="container">
-<h2>斜切</h2>
-<div class="row"><label>分水</label><input type="number" inputmode="decimal" id="fenShui"></div>
-<div class="row"><label>料寬</label>
-<select id="liaoKuan">
-<option value="10">10</option>
-<option value="12.5">12.5</option>
-</select></div>
-<div class="row"><label>底長</label><input type="number" inputmode="decimal" id="bottom"></div>
-<div class="row"><label>中脊高</label><input type="number" id="centerH" readonly></div>
-<button onclick="calc()">計算</button>
-<div id="result" class="result-box"></div>
-</div>
+    <div class="container">
+        <h2>浪板</h2>
+        <div class="row"><label>類型</label>
+            <select id="slopeType" onchange="calcWave()">
+            <option value="1">單斜</option>
+            <option value="2">雙斜</option>
+            </select>
+        </div>
+        <div class="row"><label>長度CM</label><input type="number" inputmode="decimal" id="roofLen" oninput="calcWave()"></div>
+        <div id="waveResult" class="result"></div>
+    </div>
 
-<div class="container">
-<h2>C型鋼間距</h2>
-<div class="row"><label>前斜樑長</label><input type="number" inputmode="decimal" id="frontLen"></div>
-<div class="row"><label>後斜樑長</label><input type="number" inputmode="decimal" id="rearLen"></div>
-<div class="row"><label>首隻(固定)</label><input type="number" id="firstGap" value="15" readonly></div>
-<button onclick="calcC()">計算</button>
-<div id="cResult" class="result-box"></div>
-</div>
+    <div class="container">
+        <h2>斜切</h2>
+        <div class="row"><label>分水</label><input type="number" inputmode="decimal" id="fenShui"></div>
+        <div class="row"><label>料寬</label>
+            <select id="liaoKuan">
+            <option value="10">10</option>
+            <option value="12.5">12.5</option>
+            </select>
+        </div>
+        <div class="row"><label>底長</label><input type="number" inputmode="decimal" id="bottom"></div>
+        <div class="row"><label>中脊高</label><input type="number" id="centerH" readonly></div>
+        <button onclick="calc()">計算</button>
+        <div id="result" class="result-box"></div>
+    </div>
 
-<div class="container">
-<h2>鋼構平台計算</h2>
-<div class="reminder">⚠️ 壓花板整件4x8尺 = 122cm x 244cm</div>
-<div class="row"><label>水平長度</label><input type="number" inputmode="decimal" id="platL"></div>
-<div class="row"><label>垂直高度</label><input type="number" inputmode="decimal" id="platH"></div>
-<div class="row"><label>料寬</label><input type="number" inputmode="decimal" id="platW"></div>
-<button onclick="calcPlat()">計算</button>
-<div id="platResult" class="result-box"></div>
-</div>
+    <div class="container">
+        <h2>C型鋼間距</h2>
+        <div class="row"><label>前斜樑長</label><input type="number" inputmode="decimal" id="frontLen"></div>
+        <div class="row"><label>後斜樑長</label><input type="number" inputmode="decimal" id="rearLen"></div>
+        <div class="row"><label>首隻(固定)</label><input type="number" id="firstGap" value="15" readonly></div>
+        <button onclick="calcC()">計算</button>
+        <div id="cResult" class="result-box"></div>
+    </div>
 
-<div class="container">
-<h2>樓梯計算</h2>
-<div class="row"><label>總高</label><input type="number" inputmode="decimal" id="stairH"></div>
-<div class="row"><label>水平長</label><input type="number" inputmode="decimal" id="stairL"></div>
-<div class="row"><label>料寬</label><input type="number" inputmode="decimal" id="matW"></div>
-<button onclick="calcStair()">計算</button>
-<div id="stairResult" class="result-box"></div>
-</div>
+    <div class="container">
+        <h2>鋼構平台計算</h2>
+        <div class="reminder">⚠️ 壓花板整件4x8尺 = 122cm x 244cm</div>
+        <div class="row"><label>水平長度</label><input type="number" inputmode="decimal" id="platL"></div>
+        <div class="row"><label>垂直高度</label><input type="number" inputmode="decimal" id="platH"></div>
+        <div class="row"><label>料寬</label><input type="number" inputmode="decimal" id="platW"></div>
+        <button onclick="calcPlat()">計算</button>
+        <div id="platResult" class="result-box"></div>
+    </div>
 
-<script>
+    <div class="container">
+        <h2>樓梯計算</h2>
+        <div class="row"><label>總高</label><input type="number" inputmode="decimal" id="stairH"></div>
+        <div class="row"><label>水平長</label><input type="number" inputmode="decimal" id="stairL"></div>
+        <div class="row"><label>料寬</label><input type="number" inputmode="decimal" id="matW"></div>
+        <button onclick="calcStair()">計算</button>
+        <div id="stairResult" class="result-box"></div>
+    </div>
+
+</div> <script>
 // 坪數
 function calcPing(){
-let L=parseFloat(document.getElementById('len').value);
-let W=parseFloat(document.getElementById('wid').value);
-let result=document.getElementById('pingResult');
-
-if(isNaN(L)||isNaN(W)){result.innerHTML="";return;}
-result.innerHTML=`${(L*W/33057.85).toFixed(2)}坪`;
+    let L=parseFloat(document.getElementById('len').value);
+    let W=parseFloat(document.getElementById('wid').value);
+    let result=document.getElementById('pingResult');
+    if(isNaN(L)||isNaN(W)){result.innerHTML="";return;}
+    result.innerHTML=`${(L*W/33057.85).toFixed(2)}坪`;
 }
 
 // 浪板
 function calcWave(){
-let L=parseFloat(document.getElementById('roofLen').value);
-let type=document.getElementById('slopeType').value;
-let result=document.getElementById('waveResult');
-
-if(isNaN(L)){result.innerHTML="";return;}
-
-let pcs=Math.ceil(L/75);
-if(type==2)pcs*=2;
-result.innerHTML=`${pcs}片`;
+    let L=parseFloat(document.getElementById('roofLen').value);
+    let type=document.getElementById('slopeType').value;
+    let result=document.getElementById('waveResult');
+    if(isNaN(L)){result.innerHTML="";return;}
+    let pcs=Math.ceil(L/75);
+    if(type==2)pcs*=2;
+    result.innerHTML=`${pcs}片`;
 }
 
 // 斜切
 function calc(){
-let f=parseFloat(document.getElementById('fenShui').value);
-let w=parseFloat(document.getElementById('liaoKuan').value);
-let b=parseFloat(document.getElementById('bottom').value);
-let result=document.getElementById('result');
-
-if(isNaN(f)||isNaN(w)||isNaN(b)){result.innerHTML="請輸入資料";return;}
-
-let rad=Math.atan(f/10);
-let h=b*Math.tan(rad);
-document.getElementById('centerH').value=h.toFixed(2);
-
-let slope=Math.sqrt(b*b+h*h);
-let delta=w*Math.tan(rad);
-
-result.innerHTML=`斜長:${slope.toFixed(1)}<br>切:${delta.toFixed(1)}`;
+    let f=parseFloat(document.getElementById('fenShui').value);
+    let w=parseFloat(document.getElementById('liaoKuan').value);
+    let b=parseFloat(document.getElementById('bottom').value);
+    let result=document.getElementById('result');
+    if(isNaN(f)||isNaN(w)||isNaN(b)){result.innerHTML="請輸入資料";return;}
+    let rad=Math.atan(f/10);
+    let h=b*Math.tan(rad);
+    document.getElementById('centerH').value=h.toFixed(2);
+    let slope=Math.sqrt(b*b+h*h);
+    let delta=w*Math.tan(rad);
+    result.innerHTML=`斜長:${slope.toFixed(1)}<br>切:${delta.toFixed(1)}`;
 }
 
 // C型鋼間距
 function getBestC(total, first) {
   let usable = total - first;
   if (!total || usable <= 0) return null;
-
   for (let n = 2; n < 100; n++) {
     let space = usable / (n - 1);
-
     if (usable <= 200) {
-      if (space >= 50 && space < 80) {
-        return { n: n, space: parseFloat(space.toFixed(2)) };
-      }
+      if (space >= 50 && space < 80) return { n: n, space: parseFloat(space.toFixed(2)) };
       if (space < 50) break; 
     } else {
-      if (space >= 60 && space < 80) {
-        return { n: n, space: parseFloat(space.toFixed(2)) };
-      }
+      if (space >= 60 && space < 80) return { n: n, space: parseFloat(space.toFixed(2)) };
       if (space < 60) break;
     }
   }
@@ -188,23 +221,12 @@ function calcC() {
   let rLen = parseFloat(document.getElementById('rearLen').value);
   let gap = 15; 
   let res = document.getElementById('cResult');
-
-  if (isNaN(fLen) || isNaN(rLen)) {
-    res.innerHTML = "請輸入前斜樑與後斜樑長度";
-    return;
-  }
-
+  if (isNaN(fLen) || isNaN(rLen)) { res.innerHTML = "請輸入前斜樑與後斜樑長度"; return; }
   let front = getBestC(fLen, gap);
   let rear = getBestC(rLen, gap);
-
-  if (!front || !rear) {
-    res.innerHTML = "無解 (無法滿足間距條件)";
-    return;
-  }
-
+  if (!front || !rear) { res.innerHTML = "無解 (無法滿足間距條件)"; return; }
   let totalBeams = front.n + rear.n;
   let allTotal = totalBeams + 2;
-
   res.innerHTML = 
     `前斜樑: 首隻 + ${front.n - 1} = ${front.n} 隻 (間距 ${front.space} cm)<br>` +
     `後斜樑: 首隻 + ${rear.n - 1} = ${rear.n} 隻 (間距 ${rear.space} cm)<br>` +
@@ -213,51 +235,31 @@ function calcC() {
 
 // 鋼構平台計算
 function calcPlat(){
-let L=parseFloat(document.getElementById('platL').value);
-let H=parseFloat(document.getElementById('platH').value);
-let W=parseFloat(document.getElementById('platW').value);
-let result=document.getElementById('platResult');
-
-if(isNaN(L)||isNaN(H)||isNaN(W)){
-result.innerHTML="請輸入水平長度、垂直高度與料寬";
-return;
+    let L=parseFloat(document.getElementById('platL').value);
+    let H=parseFloat(document.getElementById('platH').value);
+    let W=parseFloat(document.getElementById('platW').value);
+    let result=document.getElementById('platResult');
+    if(isNaN(L)||isNaN(H)||isNaN(W)){result.innerHTML="請輸入水平長度、垂直高度與料寬"; return;}
+    let slope=Math.sqrt(L*L+H*H);
+    let cutTop=W*(H/L);
+    let cutBottom=W*(L/H);
+    result.innerHTML=`斜長：${slope.toFixed(1)} cm<br>上切：${cutTop.toFixed(1)} cm<br>下切：${cutBottom.toFixed(1)} cm`;
 }
 
-let slope=Math.sqrt(L*L+H*H);
-let cutTop=W*(H/L);
-let cutBottom=W*(L/H);
-
-result.innerHTML=
-`斜長：${slope.toFixed(1)} cm<br>`+
-`上切：${cutTop.toFixed(1)} cm<br>`+
-`下切：${cutBottom.toFixed(1)} cm`;
-}
-
-// ======== 樓梯計算 ========
+// 樓梯計算
 function calcStair(){
   let H=parseFloat(document.getElementById('stairH').value);
   let L=parseFloat(document.getElementById('stairL').value);
   let W=parseFloat(document.getElementById('matW').value);
   let result=document.getElementById('stairResult');
-
-  if(isNaN(H)||isNaN(L)||isNaN(W)){
-    result.innerHTML="請輸入高度、水平長、料寬";
-    return;
-  }
-
+  if(isNaN(H)||isNaN(L)||isNaN(W)){ result.innerHTML="請輸入高度、水平長、料寬"; return; }
   let slope=Math.sqrt(H*H+L*L);
   let validNs = [];
-
-  // 第一階段：篩出符合標準的踏數
   for(let N=5; N<=40; N++){
     let stepH = H/N;
     let stepW = L/N;
-    if(stepH<=23 && stepW>=20){
-      validNs.push(N);
-    }
+    if(stepH<=23 && stepW>=20){ validNs.push(N); }
   }
-
-  // 決定要顯示的範圍
   let minN, maxN;
   if(validNs.length > 0){
     minN = Math.min(...validNs) - 1;
@@ -267,57 +269,35 @@ function calcStair(){
     minN = idealN - 1;
     maxN = idealN + 1;
   }
-  
-  minN = Math.max(2, minN); // 確保最小不會低於 2 段
-
-  // 樓梯斜長顯示
+  minN = Math.max(2, minN);
   let txt=`📊 方案評估（含上下極限參考）<br>📐 樓梯斜長：${slope.toFixed(1)} cm<br><br>`;
-
-  // 第二階段：印出選定範圍內的所有結果
   for(let N=minN; N<=maxN; N++){
     let stepH = H/N;
     let stepW = L/N;
     let stepSlope = slope/N;
     let status = "";
-
-    // 狀態判定
     if(stepH<=23 && stepW>=20){
-      if(stepH>=16 && stepH<=18){
-        status="🟢標準";
-      }else if(stepH<=20){
-        status="🟡可用";
-      }else{
-        status="🟠極限勉強";
-      }
+      if(stepH>=16 && stepH<=18){ status="🟢標準"; }
+      else if(stepH<=20){ status="🟡可用"; }
+      else{ status="🟠極限勉強"; }
     } else {
-      if (stepH > 23) {
-        status="🔴階高太高 (建議降高)";
-      } else if (stepW < 20) {
-        status="🔴階深太窄 (容易踩空)";
-      } else {
-        status="🔴規格外";
-      }
+      if (stepH > 23) { status="🔴階高太高 (建議降高)"; }
+      else if (stepW < 20) { status="🔴階深太窄 (容易踩空)"; }
+      else { status="🔴規格外"; }
     }
-
     let cutTop = W*(H/L);
     let cutBottom = W*(L/H);
-    
-    // 扣除最後一階上平台的踏數，並判斷單雙數
     let treadCount = N - 1;
     let isOdd = (treadCount % 2 !== 0);
     let treadStatus = isOdd ? '<span class="safe-text">🟢單數OK</span>' : '<span class="warning-text">⚠️雙數忌諱</span>';
-
-    txt+=
-    `分段：${N} 階 (落差段數)<br>
+    txt+=`分段：${N} 階 (落差段數)<br>
     實體踏板：${treadCount} 片 ${treadStatus}<br>
     每階高：${stepH.toFixed(1)} cm<br>
     每階深：${stepW.toFixed(1)} cm<br>
     每步斜長：${stepSlope.toFixed(1)} cm<br>
     上切：${cutTop.toFixed(1)} cm｜下切：${cutBottom.toFixed(1)} cm<br>
-    狀態：${status}
-    <hr>`;
+    狀態：${status}<hr>`;
   }
-
   result.innerHTML=txt;
 }
 </script>
